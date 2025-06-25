@@ -27,16 +27,19 @@ export const NewItemForm = ({onSubmit}) => {
 	);
 };
 
-export const Content = ({list}) => {
+export const Content = ({list, onDelete}) => {
 
 	return (
 		<table>
 			<tbody>
-				{list.map(({name, number, id}) => (
+				{list.map(({name, number}) => (
 
-					<tr key={id}>
+					<tr key={name}>
 						<td>{name}</td>
 						<td>{number}</td>
+						<td>
+							<button onClick={() => onDelete(name)}>Delete</button>
+						</td>
 					</tr>
 				))}
 			</tbody>
