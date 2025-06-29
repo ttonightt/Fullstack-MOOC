@@ -1,0 +1,25 @@
+body {
+	margin: 5rem;
+}
+
+.coat-of-arms {
+	height: 120px;
+}
+
+.flag {
+	height: 120px;
+}
+
+.inline-block {
+	display: inline-block;
+}
+
+.ml-3 {
+	margin-left: 3em;
+}
+
+code {
+	border-radius: 0.25em;
+	padding: 0.2em 0.25em;
+	background-color: gainsboro;
+}
