@@ -9,3 +9,13 @@ content-type: application/json
 GET http://localhost:3001/api/persons
 ###
 DELETE http://localhost:3001/api/persons/50321033
+###
+POST https://phonebook-fullstack-4uwa.onrender.com/api/persons
+content-type: application/json
+
+{
+	"name": "Mr. Nobody",
+	"number": "044-1444"
+}
+###
+DELETE https://phonebook-fullstack-4uwa.onrender.com/api/persons/67240534

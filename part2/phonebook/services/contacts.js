@@ -2,7 +2,7 @@
 
 import axios from "axios";
 
-const baseUrl = "http://localhost:3001/contacts";
+const baseUrl = "/api/persons";
 
 const get = () => 
 	axios.get(baseUrl)
