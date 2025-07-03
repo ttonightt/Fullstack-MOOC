@@ -32,13 +32,13 @@ export const Content = ({list, onDelete}) => {
 	return (
 		<table>
 			<tbody>
-				{list.map(({name, number}) => (
+				{list.map(({id, name, number}) => (
 
-					<tr key={name}>
+					<tr key={id}>
 						<td>{name}</td>
 						<td>{number}</td>
 						<td>
-							<button onClick={() => onDelete(name)}>Delete</button>
+							<button onClick={() => onDelete(id)}>Delete</button>
 						</td>
 					</tr>
 				))}

@@ -1,6 +1,9 @@
 const express = require("express");
 const morgan = require("morgan");
 const app = express();
+const Contact = require("./mongo");
+const errorHandler = require("./errorHandler");
+const unknownEndpoint = require("./unknownEndpoint");
 
 morgan.token("body", (req, res) => req.method === "POST" ? JSON.stringify(req.body) : "");
 
@@ -8,95 +11,100 @@ app.use(express.static("dist"));
 app.use(express.json());
 app.use(morgan(":method :url :status :res[content-length] - :response-time ms :body"));
 
-// /api/persons
-
-let phonebook = [
-	{
-		"id": "1",
-		"name": "Arto Hellas", 
-		"number": "040-123456"
-	},
-	{
-		"id": "2",
-		"name": "Ada Lovelace", 
-		"number": "39-44-5323523"
-	},
-	{
-		"id": "3",
-		"name": "Dan Abramov", 
-		"number": "12-43-234345"
-	},
-	{
-		"id": "4",
-		"name": "Mary Poppendieck", 
-		"number": "39-23-6423122"
-	}
-];
-
 app.get("/info", (req, res) => {
 
-	res.send(`
-		Phonebook has info for ${phonebook.length} people<br><br>
-		${new Date()}
-	`);
+	Contact.find({}).then(cnts => {
+
+		res.send(`
+			Phonebook has info for ${cnts.length} people<br><br>
+			${new Date()}
+		`);
+	});
 });
 
 app.get("/api/persons", (req, res) => {
-	res.json(phonebook);
+
+	Contact.find({}).then(cnts => {
+
+		res.json(cnts);
+	});
 });
 
-app.get("/api/persons/:id", (req, res) => {
+app.get("/api/persons/:id", (req, res, next) => {
 
 	const id = req.params.id;
-	const contact = phonebook.find(entry => entry.id === id);
 
-	if (contact) {
+	Contact
+		.findById(id)
+		.then(cnt => {
 
-		res.json(contact);
-	} else {
-		res.status(404).end();
-	}
+			if (cnt) {
+
+				res.json(cnt);
+			} else {
+
+				res.status(404).end();
+			}
+		})
+		.catch(err => next(err));
 });
 
-const range = 10 ** 8;
+app.post("/api/persons", (reqP, resP) => {
 
-app.post("/api/persons", (req, res) => {
+	const {name, number} = reqP.body;
 
-	const {name, number} = req.body;
+	console.log(reqP.body);
 
 	if (!(name && number)) {
-		return res.status(400).json({
+		return resP.status(400).json({
 			error: "Name or number are missing!"
 		});
 	}
 
-	const entry = {
+	const contact = new Contact({
 		name,
-		number,
-		id: Math.round(Math.random() * range).toString()
-	};
+		number
+	});
 
-	phonebook = phonebook.concat(entry);
+	contact.save().then(resS => {
 
-	res.json(phonebook);
+		console.log("New contact was saved successfully!");
+
+		resP.json(resS);
+	});
 });
 
-app.delete("/api/persons/:id", (req, res) => {
+app.put("/api/persons/:id", (req, res, next) => {
 
 	const id = req.params.id;
-	phonebook = phonebook.filter(note => note.id !== id);
+	const {name, number} = req.body;
 
-	res.status(204).end();
+	Contact
+		.findByIdAndUpdate(id, {name, number})
+		.then(cnt => {
+
+			res.json(cnt);
+		})
+		.catch(err => next(err))
 });
 
-const unknownEndpoint = (req, res) => {
+app.delete("/api/persons/:id", (req, res, next) => {
 
-	res.status(404).send({
-		error: "unknown endpoint"
-	});
-}
+	const id = req.params.id;
+
+	Contact
+		.findByIdAndDelete(id)
+		.then(() => 
+			res.status(204).end()
+		)
+		.catch(err => 
+			next(err)
+		);
+});
 
 app.use(unknownEndpoint);
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3001;
 

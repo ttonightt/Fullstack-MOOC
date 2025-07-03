@@ -8,14 +8,16 @@ content-type: application/json
 ###
 GET http://localhost:3001/api/persons
 ###
-DELETE http://localhost:3001/api/persons/50321033
+GET http://localhost:3001/api/persons/686673ebc1bc2428882e5bcb
 ###
-POST https://phonebook-fullstack-4uwa.onrender.com/api/persons
+DELETE http://localhost:3001/api/persons/686671c220ded2e988bae0ae
+###
+PUT http://localhost:3001/api/persons/68666c4f8028da16bc3cde1
 content-type: application/json
 
 {
-	"name": "Mr. Nobody",
-	"number": "044-1444"
+	"name": "Mr. Nobody VIII",
+	"number": "011-0222"
 }
 ###
 DELETE https://phonebook-fullstack-4uwa.onrender.com/api/persons/67240534

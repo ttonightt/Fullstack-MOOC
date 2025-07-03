@@ -41,77 +41,84 @@ export const App = () => {
 
 	}, []);
 
-	const addContact = async (name, number) => {
+	const handleAdd = (name, number) => {
 
-		const contacts_ = await contactService.get();
+		const target = contacts.find(cnt => cnt.name === name);
 
-		if (contacts_.some(cnt => cnt.name === name)) {
+		if (target) {
 
 			if (!confirm(`Modify existing '${name}' entry with following phone number: ${number}?`)) return;
 
 			nlog(name, "modifing with phone number", number, "is pending...");
 
-			contactService.update(name, {name, number})
-			.then(() => {
+			const id = target.id;
 
-				nlog(name, "with phone number was modified with folowing values:", {number});
+			contactService
+				.update(id, {name, number})
+				.then(_cnt => {
 
-				contactService.get()
-				.then(cnts => 
-					setContacts(Array.from(cnts))
-				);
-			})
-			// .catch(err => {
+					nlog(name, "with phone number was modified with folowing values:", {number}, "from", _cnt);
 
-			// 	if (err.response.status === 404) {
+					contactService.get()
+						.then(cnts => 
+							setContacts(Array.from(cnts))
+						);
+				})
+				.catch(err => {
 
-			// 		nerr(`Entry of '${name}' was already removed from contacts`);
-			// 	} else
-			// 		console.error(err);
-			// });
+					if (err.response.status === 404) {
+
+						nerr(`Entry of '${name}' was already removed from contacts`);
+					} else
+						console.error(err);
+				});
 		} else {
 
-			const cnt = {
-				id: name,
+			const contact_ = {
 				name,
 				number
 			};
 
 			nlog(name, "with phone number", number, "is pending...");
 
-			contactService.add(cnt).then(cnt$ => {
+			contactService
+				.add(contact_)
+				.then(cnt => {
 
-				setContacts(contacts_.concat(cnt$));
+					setContacts(contacts.concat(cnt));
 
-				nlog(cnt$.name, "with phone number", cnt$.number, "was added!");
-			});
+					nlog(cnt.name, "with phone number", cnt.number, "was added!");
+				});
 		}
 	};
 
-	const handleDelete = name => {
+	const handleDelete = id => {
+
+		const {name} = contacts.find(cnt => cnt.id === id);
 
 		if (!confirm(`Delete '${name}' ?`)) return;
 
 		nlog(name, "removing is pending...");
 
-		contactService.remove(name)
-		.then(() => 
-			contactService.get()
-			.then(cnts => {
+		contactService
+			.remove(id)
+			.then(() => 
+				contactService
+					.get()
+					.then(contacts_ => {
 
-				nlog(name, "was removed");
+						nlog(name, "was removed");
 
-				setContacts(Array.from(cnts))
-			})
-		)
-		.catch(err => {
+						setContacts(contacts_)
+					})
+			)
+			.catch(err => {
 
-			if (err.response.status === 404) {
+				if (err.response.status === 404)
+					nerr(`There is no such an entry at contacts/: '${name}'`);
 
-				nerr(`There is no such an entry at contacts/: '${name}'`);
-			}
-			console.error(err);
-		});
+				console.error(err);
+			});
 	}
 
 	const visibleItems = contacts.filter(item => item.name.toLowerCase().includes(filter.toLowerCase()));
@@ -130,7 +137,7 @@ export const App = () => {
 			<Filter value={filter} onChange={e => setFilter(e.target.value)}/>
 
 			<h1>Add new contact</h1>
-			<NewItemForm onSubmit={addContact}/>
+			<NewItemForm onSubmit={handleAdd}/>
 
 			<h1>Contact List</h1>
 			<Content list={visibleItems} onDelete={handleDelete}/>
