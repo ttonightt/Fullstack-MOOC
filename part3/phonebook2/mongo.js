@@ -9,8 +9,18 @@ mongoose
 	.catch(err => console.error(err));
 
 const contactSchema = new mongoose.Schema({
-	name: String,
-	number: String
+	name: {
+		type: String,
+		minLength: 3
+	},
+	number: {
+		type: String,
+		// match: /[0-9]{2,3}-[0-9]+/,
+		validate: value => {
+			return /[0-9]{2,3}-[0-9]+/.test(value)
+		},
+		minLength: 8
+	}
 });
 
 contactSchema.set("toJSON", {

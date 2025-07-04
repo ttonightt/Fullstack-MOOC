@@ -2,9 +2,14 @@ const errorHandler = (err, req, res, next) => {
 
 	console.log(err);
 
-	if (err.name === "CastError") {
+	switch (err.name) {
+		case "CastError":
 
-		return res.status(400).send({error: "malformatted id"});
+			return res.status(400).send({error: "malformatted id"});
+			
+		case "ValidationError":
+
+			return res.status(400).send({error: err.message});
 	}
 
 	next(err);

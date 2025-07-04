@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import contactService from "../services/contacts";
 import { useNotification } from "./hooks";
@@ -41,7 +41,7 @@ export const App = () => {
 
 	}, []);
 
-	const handleAdd = (name, number) => {
+	const handleAdd = useCallback((name, number) => {
 
 		const target = contacts.find(cnt => cnt.name === name);
 
@@ -66,11 +66,16 @@ export const App = () => {
 				})
 				.catch(err => {
 
-					if (err.response.status === 404) {
-
-						nerr(`Entry of '${name}' was already removed from contacts`);
-					} else
-						console.error(err);
+					switch (err.response.status) {
+						case 404:
+							nerr(`Entry of '${name}' was already removed from contacts`);
+							break;
+						case 400:
+							nerr(err.response.data.error)
+							break;
+						default:
+							console.error(err);
+					}
 				});
 		} else {
 
@@ -88,9 +93,10 @@ export const App = () => {
 					setContacts(contacts.concat(cnt));
 
 					nlog(cnt.name, "with phone number", cnt.number, "was added!");
-				});
+				})
+				.catch(err => nerr(err.response.data.error));
 		}
-	};
+	}, [contacts]);
 
 	const handleDelete = id => {
 

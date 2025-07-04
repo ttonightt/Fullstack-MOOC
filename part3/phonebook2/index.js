@@ -43,35 +43,30 @@ app.get("/api/persons/:id", (req, res, next) => {
 				res.json(cnt);
 			} else {
 
-				res.status(404).end();
+				res.status(404).json({error: "unknown endpoint"});
 			}
 		})
 		.catch(err => next(err));
 });
 
-app.post("/api/persons", (reqP, resP) => {
+app.post("/api/persons", (reqP, resP, next) => {
 
 	const {name, number} = reqP.body;
-
-	console.log(reqP.body);
-
-	if (!(name && number)) {
-		return resP.status(400).json({
-			error: "Name or number are missing!"
-		});
-	}
 
 	const contact = new Contact({
 		name,
 		number
 	});
 
-	contact.save().then(resS => {
+	contact
+		.save()
+		.then(resS => {
 
-		console.log("New contact was saved successfully!");
+			console.log("New contact was saved successfully!");
 
-		resP.json(resS);
-	});
+			resP.json(resS);
+		})
+		.catch(err => next(err));
 });
 
 app.put("/api/persons/:id", (req, res, next) => {
@@ -80,7 +75,7 @@ app.put("/api/persons/:id", (req, res, next) => {
 	const {name, number} = req.body;
 
 	Contact
-		.findByIdAndUpdate(id, {name, number})
+		.findByIdAndUpdate(id, {name, number}, {runValidators: true})
 		.then(cnt => {
 
 			res.json(cnt);
@@ -104,11 +99,11 @@ app.delete("/api/persons/:id", (req, res, next) => {
 
 app.use(unknownEndpoint);
 
-app.use(errorHandler);
-
 const PORT = process.env.PORT || 3001;
 
 app.listen(PORT, () => {
 
 	console.log(`Server is running on port ${PORT}`);
 });
+
+app.use(errorHandler);
