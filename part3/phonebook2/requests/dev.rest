@@ -2,8 +2,8 @@ POST http://localhost:3001/api/persons
 content-type: application/json
 
 {
-	"name": "a",
-	"number": "044-1444"
+  "name": "a",
+  "number": "044-1444"
 }
 ###
 GET http://localhost:3001/api/persons
@@ -16,8 +16,8 @@ PUT http://localhost:3001/api/persons/68666c4f8028da16bc3cde1
 content-type: application/json
 
 {
-	"name": "",
-	"number": "011-0222"
+  "name": "",
+  "number": "011-0222"
 }
 ###
 DELETE https://phonebook-fullstack-4uwa.onrender.com/api/persons/67240534

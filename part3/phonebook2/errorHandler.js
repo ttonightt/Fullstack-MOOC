@@ -1,18 +1,16 @@
 const errorHandler = (err, req, res, next) => {
 
-	console.log(err);
+  switch (err.name) {
+  case 'CastError':
 
-	switch (err.name) {
-		case "CastError":
+    return res.status(400).send({error: 'malformatted id'})
+      
+  case 'ValidationError':
 
-			return res.status(400).send({error: "malformatted id"});
-			
-		case "ValidationError":
+    return res.status(400).send({error: err.message})
+  }
 
-			return res.status(400).send({error: err.message});
-	}
+  next(err)
+}
 
-	next(err);
-};
-
-module.exports = errorHandler;
+module.exports = errorHandler

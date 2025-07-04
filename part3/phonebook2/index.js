@@ -1,109 +1,108 @@
-const express = require("express");
-const morgan = require("morgan");
-const app = express();
-const Contact = require("./mongo");
-const errorHandler = require("./errorHandler");
-const unknownEndpoint = require("./unknownEndpoint");
+import { createRequire } from 'module'
+const require = createRequire(import.meta.url)
 
-morgan.token("body", (req, res) => req.method === "POST" ? JSON.stringify(req.body) : "");
+const express = require('express')
+const morgan = require('morgan')
+const app = express()
+const Contact = require('./mongo')
+const errorHandler = require('./errorHandler')
+const unknownEndpoint = require('./unknownEndpoint')
 
-app.use(express.static("dist"));
-app.use(express.json());
-app.use(morgan(":method :url :status :res[content-length] - :response-time ms :body"));
+morgan.token('body', (req) => req.method === 'POST' ? JSON.stringify(req.body) : '')
 
-app.get("/info", (req, res) => {
+app.use(express.static('dist'))
+app.use(express.json())
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
-	Contact.find({}).then(cnts => {
+app.get('/info', (req, res) => {
 
-		res.send(`
-			Phonebook has info for ${cnts.length} people<br><br>
-			${new Date()}
-		`);
-	});
-});
+  Contact.find({}).then(cnts => {
 
-app.get("/api/persons", (req, res) => {
+    res.send(`
+      Phonebook has info for ${cnts.length} people<br><br>
+      ${new Date()}
+    `)
+  })
+})
 
-	Contact.find({}).then(cnts => {
+app.get('/api/persons', (req, res) => {
 
-		res.json(cnts);
-	});
-});
+  Contact.find({}).then(cnts => {
 
-app.get("/api/persons/:id", (req, res, next) => {
+    res.json(cnts)
+  })
+})
 
-	const id = req.params.id;
+app.get('/api/persons/:id', (req, res, next) => {
 
-	Contact
-		.findById(id)
-		.then(cnt => {
+  const id = req.params.id
 
-			if (cnt) {
+  Contact
+    .findById(id)
+    .then(cnt => {
 
-				res.json(cnt);
-			} else {
+      if (cnt) {
 
-				res.status(404).json({error: "unknown endpoint"});
-			}
-		})
-		.catch(err => next(err));
-});
+        res.json(cnt)
+      } else {
 
-app.post("/api/persons", (reqP, resP, next) => {
+        res.status(404).json({error: 'unknown endpoint'})
+      }
+    })
+    .catch(err => next(err))
+})
 
-	const {name, number} = reqP.body;
+app.post('/api/persons', (reqP, resP, next) => {
 
-	const contact = new Contact({
-		name,
-		number
-	});
+  const {name, number} = reqP.body
 
-	contact
-		.save()
-		.then(resS => {
+  const contact = new Contact({
+    name,
+    number
+  })
 
-			console.log("New contact was saved successfully!");
+  contact
+    .save()
+    .then(resS => {
 
-			resP.json(resS);
-		})
-		.catch(err => next(err));
-});
+      resP.json(resS)
+    })
+    .catch(err => next(err))
+})
 
-app.put("/api/persons/:id", (req, res, next) => {
+app.put('/api/persons/:id', (req, res, next) => {
 
-	const id = req.params.id;
-	const {name, number} = req.body;
+  const id = req.params.id
+  const {name, number} = req.body
 
-	Contact
-		.findByIdAndUpdate(id, {name, number}, {runValidators: true})
-		.then(cnt => {
+  Contact
+    .findByIdAndUpdate(id, {name, number}, {runValidators: true})
+    .then(cnt => {
 
-			res.json(cnt);
-		})
-		.catch(err => next(err))
-});
+      res.json(cnt)
+    })
+    .catch(err => next(err))
+})
 
-app.delete("/api/persons/:id", (req, res, next) => {
+app.delete('/api/persons/:id', (req, res, next) => {
 
-	const id = req.params.id;
+  const id = req.params.id
 
-	Contact
-		.findByIdAndDelete(id)
-		.then(() => 
-			res.status(204).end()
-		)
-		.catch(err => 
-			next(err)
-		);
-});
+  Contact
+    .findByIdAndDelete(id)
+    .then(() => 
+      res.status(204).end()
+    )
+    .catch(err => 
+      next(err)
+    )
+})
 
-app.use(unknownEndpoint);
+app.use(unknownEndpoint)
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3001
 
 app.listen(PORT, () => {
+})
 
-	console.log(`Server is running on port ${PORT}`);
-});
-
-app.use(errorHandler);
+app.use(errorHandler)
