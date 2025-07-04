@@ -1,6 +1,3 @@
-import { createRequire } from 'module'
-const require = createRequire(import.meta.url)
-
 const express = require('express')
 const morgan = require('morgan')
 const app = express()
@@ -65,6 +62,8 @@ app.post('/api/persons', (reqP, resP, next) => {
     .save()
     .then(resS => {
 
+      console.log('New contact was saved successfully!')
+
       resP.json(resS)
     })
     .catch(err => next(err))
@@ -103,6 +102,8 @@ app.use(unknownEndpoint)
 const PORT = process.env.PORT || 3001
 
 app.listen(PORT, () => {
+
+  console.log(`Server is running on port ${PORT}`)
 })
 
 app.use(errorHandler)

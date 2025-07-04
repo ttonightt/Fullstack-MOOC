@@ -1,6 +1,3 @@
-import { createRequire } from 'module'
-const require = createRequire(import.meta.url)
-
 require('dotenv').config()
 const mongoose = require('mongoose')
 
@@ -8,6 +5,8 @@ const url = process.env.MONGODB_URI
 
 mongoose
   .connect(url)
+  .then(() => console.log('connected to MongoDB'))
+  .catch(err => console.error(err))
 
 const contactSchema = new mongoose.Schema({
   name: {
