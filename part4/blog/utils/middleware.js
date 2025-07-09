@@ -8,6 +8,9 @@ const errorHandler = (err, req, res, next) => {
 		case "CastError":
 
 			return res.status(400).send({error: "Malformatted ID"});
+		case "ValidationError":
+
+			return res.status(400).json({error: "Validation error :("});
 	}
 
 	next(err);
