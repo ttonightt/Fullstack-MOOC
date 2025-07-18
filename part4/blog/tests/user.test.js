@@ -14,7 +14,7 @@ beforeEach(async () => {
 	await User.deleteMany({});
 });
 
-test.only("Error thrown attempting to save user with too short username or password", async () => {
+test("Error thrown attempting to save user with too short username or password", async () => {
 
 	const user = {
 

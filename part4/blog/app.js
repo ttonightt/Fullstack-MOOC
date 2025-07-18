@@ -42,11 +42,20 @@ if (config.NODE_ENV === "test") {
 
 app.use(express.static("dist"));
 app.use(express.json());
+
 app.use(middleware.requestLogger);
 app.use(middleware.tokenExtractor);
+
 app.use("/api/login", loginRouter);
 app.use("/api/posts", blogRouter);
 app.use("/api/users", userRouter);
+
+if (config.NODE_ENV === "test") {
+
+	const testRouter = require("./controllers/testRouter");
+	app.use("/api/reset", testRouter);
+}
+
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);
 

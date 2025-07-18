@@ -14,7 +14,7 @@ const getStoredUser = () => {
 };
 
 const App = () => {
-	const [posts, setPosts] = useState([]);
+	const [posts, setPosts] = useState(null);
 	const [user, setUser] = useState(getStoredUser() || null);
 
 	const [notification, notify] = useNotification();
@@ -28,9 +28,10 @@ const App = () => {
 
 	useEffect(() => {
 
-		blogService.getAll().then(posts_ =>
-			setPosts(posts_)
-		);
+		blogService.getAll().then(posts_ => {
+
+			setPosts(posts_);
+		});
 	}, []);
 
 	const logInfo = (...messages) => {
@@ -79,7 +80,7 @@ const App = () => {
 	const handleSavePost = ({title, author, url}) => {
 
 		blogService
-			.create({title, author, url}, getStoredUser().token)
+			.create({title, author, url}, user.token)
 			.then(post => {
 
 				setPosts(posts.concat(post));
@@ -108,7 +109,7 @@ const App = () => {
 	const handleDelete = id => {
 
 		blogService
-			.remove(id, getStoredUser().token)
+			.remove(id, user.token)
 			.then(() => {
 
 				setPosts(posts.filter(post => post.id !== id));
@@ -117,7 +118,12 @@ const App = () => {
 			})
 			.catch(err => {
 
-				if (err.response.data.error.includes("token has expired")) {
+				if (err.response.data.error.includes("invalid token")) {
+
+					alert("Invalid token");
+					handleLogout();
+
+				} else if (err.response.data.error.includes("token has expired")) {
 
 					alert("Your session seems to be expired, please log in again");
 					handleLogout();
@@ -130,7 +136,7 @@ const App = () => {
 	const handleLike = (id, likes) => {
 
 		blogService
-			.modify(id, {likes}, getStoredUser().token) // I send PUT request carring 'likes' only, because I`ve implemented "skipping" of the other undefined properties already on the backend side (backend, blogRouter.js)
+			.modify(id, {likes}, user.token) // I send PUT request carring 'likes' only, because I`ve implemented "skipping" of the other undefined properties already on the backend side (backend, blogRouter.js)
 			.then(post_ => {
 
 				const i = posts.findIndex(post => post.id === post_.id);
@@ -141,7 +147,12 @@ const App = () => {
 			})
 			.catch(err => {
 
-				if (err.response.data.error.includes("token has expired")) {
+				if (err.response.data.error.includes("invalid token")) {
+
+					alert("Invalid token, please log in");
+					handleLogout();
+
+				} else if (err.response.data.error.includes("token has expired")) {
 
 					alert("Your session seems to be expired, please log in again");
 					handleLogout();
@@ -155,44 +166,13 @@ const App = () => {
 		return (
 			<div>
 				<h2>
-					Blogs of <i>{getStoredUser().name}</i>&nbsp;
+					Blogs of <i>{user.name}</i>&nbsp;
 					<button onClick={handleLogout}>Log out</button>
 				</h2>
-				<Togglable ref={togglableRef}>
+				<Togglable ref={togglableRef} buttonLabel="New Post">
 					<PostForm onSubmit={handleSavePost} />
 				</Togglable>
-				{
-					posts.length === 0
-					?
-					"Loading..."
-					:
-					(
-						<table>
-							<tbody>
-								<tr>
-									<td>#</td>
-									<td>Title</td>
-									<td>Author</td>
-									<td colSpan={3}>Likes</td>
-								</tr>
-								{
-									posts
-										.sort((a, b) => b.likes - a.likes)
-										.map((post, i) => 
-											<Blog
-												key={post.id}
-												post={post}
-												id={i + 1}
-												onDelete={handleDelete}
-												onLike={handleLike}
-											/>
-										)
-								}
-							</tbody>
-						</table>
-					)
-				}
-
+				<Blog posts={posts} user={user} onDelete={handleDelete} onLike={handleLike} />
 				<NotificationBody ofNotification={notification}/>
 			</div>
 		);

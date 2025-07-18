@@ -1,58 +1,41 @@
-import { useState } from "react";
-import PropTypes from "prop-types";
 
-export const Blog = ({ post, id, onDelete, onLike }) => {
-	
-	const [visibility, setVisibility] = useState(false);
+import { Post } from "./Post";
 
-	const toggleVisibility = () => setVisibility(!visibility);
+export const Blog = ({ posts, user, onDelete, onLike }) => {
 
-	const handleDelete = () => {
+	switch (posts?.length) {
+		case undefined:
+			return <p>Loading...</p>;
 
-		if (!confirm(`Are you sure deleting "${post.title}" by ${post.author}?`)) return;
-
-		onDelete(post.id);
-	};
-
-	return (<>
-		<tr>
-			<td>{id}</td>
-			<td>
-				{post.title}
-			</td>
-			<td>
-				<i>by</i> {post.author}
-			</td>
-			<td>
-				<b>{post.likes}</b>
-			</td>
-			<td>
-				<button onClick={() => onLike(post.id, post.likes + 1)}>❤️</button>
-			</td>
-			<td>
-				<button onClick={toggleVisibility}>{visibility ? "Hide" : "Show"}</button>
-			</td>
-		</tr>
-		{
-			visibility && (<>
-				<tr>
-					<td></td>
-					<td colSpan={5}><u>URL:</u> {post.url}</td>
-				</tr>
-				<tr>
-					<td></td>
-					<td colSpan={5}>
-						<button onClick={handleDelete}>Delete</button>
-					</td>
-				</tr>
-			</>)
-		}
-	</>);
-};
-
-Blog.propTypes = {
-	post: PropTypes.object.isRequired,
-	id: PropTypes.number,
-	onDelete: PropTypes.func,
-	onLike: PropTypes.func
+		case 0:
+			return <p>You have got no posts yet!</p>
+		
+		default:
+			return (
+				<table>
+					<tbody>
+						<tr>
+							<td>#</td>
+							<td>Title</td>
+							<td>Author</td>
+							<td colSpan={3}>Likes</td>
+						</tr>
+						{
+							posts
+								.sort((a, b) => b.likes - a.likes)
+								.map((post, i) => 
+									<Post
+										key={post.id}
+										post={post}
+										id={i + 1}
+										user={user} // good idea for future improvements: to wrap the whole <Blog/> with react context to provide user data
+										onDelete={onDelete}
+										onLike={onLike}
+									/>
+								)
+						}
+					</tbody>
+				</table>
+			);
+	}
 };

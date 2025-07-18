@@ -27,7 +27,7 @@ export const Togglable = forwardRef((props, refs) => {
 			<div style={{display: "none"}}>
 				{props.children}
 			</div>
-			<button onClick={toggleVisibility}>New Note</button>
+			<button onClick={toggleVisibility}>{props.buttonLabel}</button>
 		</>);
 	}
 });

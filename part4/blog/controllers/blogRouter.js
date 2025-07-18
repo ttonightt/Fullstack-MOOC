@@ -54,6 +54,8 @@ blogRouter.post("/", middleware.userExtractor, async (req, res, next) => {
 
 	const post_ = await post.save();
 
+	await post_.populate("user", {username: true, name: true});
+
 	user.posts = user.posts.concat(post_._id);
 
 	await user.save();
@@ -95,14 +97,27 @@ blogRouter.put("/:id", middleware.userExtractor, async (req, res, next) => {
 		return res.status(404).end();
 	}
 
+	if (Object.keys(req.body).length === 1 && typeof likes === "number") {
+
+		post.likes = likes;
+
+		const post_ = await post.save();
+
+		await post_.populate("user", {username: true, name: true});
+
+		return res.json(post_);
+	}
+
 	if (req.user._id.toString() !== post.user.toString()) {
 
-		return res.status(401).json({error: "You cannot delete anothers post"});
+		return res.status(401).json({error: "You cannot modify another's post"});
 	}
 
 	mergeObjects(post, {title, author, url, likes});
 
 	const post_ = await post.save();
+
+	await post_.populate("user", {username: true, name: true});
 
 	return res.json(post_);
 });

@@ -46,9 +46,6 @@ beforeEach(async () => {
 	await Post.deleteMany({});
 	await User.deleteMany({});
 
-	for (const post of initPosts)
-		await new Post(post).save();
-
 	for (const user of initUsers) {
 
 		const passwordHash = await bcrypt.hash(user.password, 10);
@@ -61,6 +58,14 @@ beforeEach(async () => {
 		};
 
 		await new User(user_).save();
+	}
+
+	const users_ = await User.find({});
+
+	for (const post of initPosts) {
+
+		post.user = users_[0]._id;
+		await new Post(post).save();
 	}
 
 	const tokenJSON = await api
@@ -162,7 +167,7 @@ describe("POST actions", () => {
 			.expect("Content-Type", /application\/json/);
 	});
 
-	test.only("Adding a blog, using inappropriate token, fails with code 401", async () => {
+	test("Adding a blog, using inappropriate token, fails with code 401", async () => {
 
 		const post = {
 			title: "I've done exercise 4.23!",
@@ -186,7 +191,11 @@ describe("DELETE actions", () => {
 
 		const id = (await api.get("/api/posts")).body[0].id;
 
-		await api.delete(`/api/posts/${id}`);
+		console.log((await api.get("/api/posts")).body);
+
+		await api
+			.delete(`/api/posts/${id}`)
+			.set("Authorization", `Bearer ${tokenBuffer}`);
 
 		assert.strictEqual((await api.get("/api/posts")).body.length, 1);
 	});
@@ -206,6 +215,7 @@ describe("PUT actions", () => {
 
 		const post_ = await api
 			.put(`/api/posts/${id}`)
+			.set("Authorization", `Bearer ${tokenBuffer}`)
 			.send(post);
 
 			const body = post_.body;
