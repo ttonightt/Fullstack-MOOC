@@ -9,7 +9,10 @@ export const AnecdoteForm = () => {
 
 		e.preventDefault();
 
-		dispatch(createAnecdote(e.target[0].value));
+		const value = e.target[0].value;
+
+		dispatch({type: "anecdotes/createAnecdote", payload: value});
+		dispatch({type: "notification/setNotification", payload: `"${value}" was added!`});
 
 		e.target[0].value = "";
 	};

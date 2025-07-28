@@ -1,3 +1,5 @@
+import { createSlice } from "@reduxjs/toolkit";
+
 const anecdotesInit = [
 	"If it hurts, do it more often",
 	"Adding manpower to a late software project makes it later!",
@@ -18,41 +20,39 @@ const toObject = (anecdote) => {
 	};
 };
 
-export const createAnecdote = (anecdote) => {
-
-	return {
-		type: "CREATE",
-		payload: toObject(anecdote)
-	};
-};
-
-export const voteForAnecdote = (id) => {
-
-	return {
-		type: "VOTE",
-		payload: {id}
-	};
-};
-
 const initialState = anecdotesInit.map(toObject);
 
-export const reducer = (state = initialState, action) => {
+const anecdoteSlice = createSlice({
+	
+	name: "anecdotes",
+	initialState,
+	reducers: {
 
-	const {type, payload} = action;
+		createAnecdote (state, {payload}) {
 
-	switch (type) {
-		case "CREATE":
-			return state.concat(payload);
-		case "VOTE":
-			// Here I prevent mutation of not only state itself but also its separate items
-			// i dont know whether it is neccessary here, it seems to me overwhelming though
-			const i = state.findIndex(anecdote => anecdote.id === payload.id);
-			const anecdote_ = {...state[i]};
-			anecdote_.votes++;
-			const state_ = [...state];
-			state_.splice(i, 1, anecdote_);
-			return state_;
-		default:
-			return state;
+			console.log("Create:", state);
+
+			return state.concat(toObject(payload));
+		},
+
+		voteForAnecdote (state, {payload}) {
+
+			return state.map((anecdote) => {
+
+				if (anecdote.id === payload) {
+
+					return {
+						...anecdote,
+						votes: anecdote.votes + 1
+					};
+				} else {
+
+					return anecdote;
+				}
+			});
+		}
 	}
-};
+});
+
+export const {createAnecdote, voteForAnecdote} = anecdoteSlice.actions;
+export default anecdoteSlice.reducer;
