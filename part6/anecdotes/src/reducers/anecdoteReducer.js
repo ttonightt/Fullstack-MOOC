@@ -1,13 +1,5 @@
-import { createSlice } from "@reduxjs/toolkit";
-
-const anecdotesInit = [
-	"If it hurts, do it more often",
-	"Adding manpower to a late software project makes it later!",
-	"The first 90 percent of the code accounts for the first 90 percent of the development time...The remaining 10 percent of the code accounts for the other 90 percent of the development time.",
-	"Any fool can write code that a computer can understand. Good programmers write code that humans can understand.",
-	"Premature optimization is the root of all evil.",
-	"Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it."
-];
+import { createSlice, current } from "@reduxjs/toolkit";
+import anecdoteService from "../services/anecdoteService";
 
 const getId = () => (100000 * Math.random()).toFixed(0);
 
@@ -20,7 +12,7 @@ const toObject = (anecdote) => {
 	};
 };
 
-const initialState = anecdotesInit.map(toObject);
+const initialState = [];
 
 const anecdoteSlice = createSlice({
 	
@@ -28,31 +20,59 @@ const anecdoteSlice = createSlice({
 	initialState,
 	reducers: {
 
-		createAnecdote (state, {payload}) {
+		appendAnecdote (state, {payload}) {
 
-			console.log("Create:", state);
-
-			return state.concat(toObject(payload));
+			state.push(payload);
 		},
 
-		voteForAnecdote (state, {payload}) {
+		setAnecdotes (state, {payload}) {
 
-			return state.map((anecdote) => {
+			return payload;
+		},
 
-				if (anecdote.id === payload) {
+		modifyAnecdote (state, {payload}) {
 
-					return {
-						...anecdote,
-						votes: anecdote.votes + 1
-					};
-				} else {
-
-					return anecdote;
-				}
-			});
+			return state.map(anecdote => 
+				anecdote.id === payload.id ? payload.anecdote : anecdote
+			);
 		}
 	}
 });
 
-export const {createAnecdote, voteForAnecdote} = anecdoteSlice.actions;
+export const {appendAnecdote, setAnecdotes, modifyAnecdote} = anecdoteSlice.actions;
 export default anecdoteSlice.reducer;
+
+export const createAnecdote = content => {
+
+	return async dispatch => {
+
+		const anecdote = await anecdoteService.create(content);
+
+		dispatch(appendAnecdote(anecdote));
+	};
+};
+
+export const fetchAnecdotes = () => {
+
+	return async dispatch => {
+
+		const anecdotes = await anecdoteService.getAll();
+					
+		dispatch(setAnecdotes(anecdotes));
+	};
+};
+
+export const voteForAnecdote = id => {
+
+	return async dispatch => {
+
+		const anecdote = await anecdoteService.get(id);
+
+		const anecdote_ = await anecdoteService.modify(id, {...anecdote, votes: anecdote.votes + 1});
+
+		dispatch(modifyAnecdote({
+			id,
+			anecdote: anecdote_
+		}));
+	};
+};

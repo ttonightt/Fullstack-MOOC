@@ -1,18 +1,17 @@
 import { useDispatch } from "react-redux";
-import { createAnecdote, voteForAnecdote } from "../reducers/anecdoteReducer";
+import { createAnecdote } from "../reducers/anecdoteReducer";
+import { triggerNotification } from "../reducers/notificationReducer";
 
 export const AnecdoteForm = () => {
 
 	const dispatch = useDispatch();
 
-	const handleSubmit = e => {
+	const handleSubmit = async e => {
 
 		e.preventDefault();
 
-		const value = e.target[0].value;
-
-		dispatch({type: "anecdotes/createAnecdote", payload: value});
-		dispatch({type: "notification/setNotification", payload: `"${value}" was added!`});
+		dispatch(createAnecdote(e.target[0].value));
+		dispatch(triggerNotification(`"${e.target[0].value}" was added!`, 3));
 
 		e.target[0].value = "";
 	};
