@@ -13,7 +13,7 @@ const mongoLocalServer = require("./utils/mongo-local-server");
 const app = express();
 
 const connectToDB = uri => {
-	
+
 	mongoose
 		.connect(uri)
 		.then(() =>
