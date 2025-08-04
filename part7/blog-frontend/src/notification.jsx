@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { JSONPrettifier } from "./JSONPrettifier";
 
 export const useNotification = () => {
 
@@ -14,17 +13,7 @@ export const useNotification = () => {
 			clearTimeout(timerBuffer);
 
 		setMessage({
-			message: msgs.reduce(
-				(s, t) => 
-					s + (
-						typeof t === "object"
-						?
-						JSONPrettifier(JSON.stringify(t))
-						:
-						t.toString()
-					) + " "
-				, ""
-			),
+			message: msgs.reduce((s, t) => s + t.toString() + " ", ""),
 			type
 		});
 

@@ -1,7 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { Blog } from "./components/Blog";
-import blogService from "./services/blogs";
-import loginService from "./services/login";
 import { LoginForm } from "./components/LoginForm";
 import { PostForm } from "./components/PostForm";
 import { useNotification } from "./notification";
@@ -10,14 +8,17 @@ import { Togglable } from "./components/Togglable";
 
 import { Container } from "@mui/material";
 
-const getStoredUser = () => {
+import { useDispatch, useSelector } from "react-redux";
+import { logoutUser, fetchUser } from "./reducers/userReducer";
+import { fetchPosts, likePost } from "./reducers/postReducer";
 
-	return JSON.parse(window.localStorage.getItem("user"));
-};
+import blogService from "./services/blogs";
+
 
 const App = () => {
-	const [posts, setPosts] = useState(null);
-	const [user, setUser] = useState(getStoredUser() || null);
+	const user = useSelector(state => state.user);
+	const posts = useSelector(state => state.posts);
+	const dispatch = useDispatch();
 
 	const [notification, notify] = useNotification();
 
@@ -30,10 +31,7 @@ const App = () => {
 
 	useEffect(() => {
 
-		blogService.getAll().then(posts_ => {
-
-			setPosts(posts_);
-		});
+		dispatch(fetchPosts());
 	}, []);
 
 	const logInfo = (...messages) => {
@@ -60,106 +58,91 @@ const App = () => {
 
 	const handleLogin = (username, password) => {
 
-		loginService
-			.login({username, password})
-			.then(data => {
-
-				setUser(data);
-				window.localStorage.setItem("user", JSON.stringify(data));
+		dispatch(fetchUser({username, password}))
+			.unwrap()
+			.then(() => {
 
 				logInfo("You logged in successfully!");
 			})
-			.catch(err => {
+			.catch(e => {
 
-				if (err.status === 401) {
-
-					logError("Wrong username or password!");
-				} else
-					console.error(err);
+				if (e.status === 401)
+					logError("Wrong credentials!");
 			});
 	};
 
 	const handleSavePost = ({title, author, url}) => {
 
-		blogService
-			.create({title, author, url}, user.token)
-			.then(post => {
+		//blogService
+		//	.create({title, author, url}, user.token)
+		//	.then(post => {
 
-				setPosts(posts.concat(post));
-				logInfo("You added the post:", post.title, "by", post.author);
+		//		setPosts(posts.concat(post));
+		//		logInfo("You added the post:", post.title, "by", post.author);
 
-				toggleVisibility();
-			})
-			.catch(err => {
+		//		toggleVisibility();
+		//	})
+		//	.catch(err => {
 
-				if (err.response.data.error.includes("token has expired")) {
+		//		if (err.response.data.error.includes("token has expired")) {
 
-					alert("Your session seems to be expired, please log in again");
-					handleLogout();
+		//			alert("Your session seems to be expired, please log in again");
+		//			handleLogout();
 
-				} else
-					console.error(err);
-			});
+		//		} else
+		//			console.error(err);
+		//	});
 	};
 
 	const handleLogout = () => {
 
-		setUser(null);
-		window.localStorage.removeItem("user");
+		dispatch(logoutUser());
 	};
 
 	const handleDelete = id => {
 
-		blogService
-			.remove(id, user.token)
-			.then(() => {
+		//blogService
+		//	.remove(id, user.token)
+		//	.then(() => {
 
-				setPosts(posts.filter(post => post.id !== id));
+		//		setPosts(posts.filter(post => post.id !== id));
 
-				logInfo("Post was successfully deleted!");
-			})
-			.catch(err => {
+		//		logInfo("Post was successfully deleted!");
+		//	})
+		//	.catch(err => {
 
-				if (err.response.data.error.includes("invalid token")) {
+		//		if (err.response.data.error.includes("invalid token")) {
 
-					alert("Invalid token");
-					handleLogout();
+		//			alert("Invalid token");
+		//			handleLogout();
 
-				} else if (err.response.data.error.includes("token has expired")) {
+		//		} else if (err.response.data.error.includes("token has expired")) {
 
-					alert("Your session seems to be expired, please log in again");
-					handleLogout();
+		//			alert("Your session seems to be expired, please log in again");
+		//			handleLogout();
 
-				} else
-					console.error(err);
-			});
+		//		} else
+		//			console.error(err);
+		//	});
 	};
 
-	const handleLike = (id, likes) => {
+	const handleLike = id => {
 
-		blogService
-			.modify(id, {likes}, user.token) // I send PUT request carring 'likes' only, because I`ve implemented "skipping" of the other undefined properties already on the backend side (backend, blogRouter.js)
-			.then(post_ => {
-
-				const i = posts.findIndex(post => post.id === post_.id);
-
-				posts.splice(i, 1, post_);
-
-				setPosts(Array.from(posts));
-			})
+		dispatch(likePost({id, token: user.token}))
+			.unwrap()
 			.catch(err => {
 
-				if (err.response.data.error.includes("invalid token")) {
+				//if (err.data.error.includes("invalid token")) {
 
-					alert("Invalid token, please log in");
-					handleLogout();
+				//	alert("Invalid token, please log in");
+				//	handleLogout();
 
-				} else if (err.response.data.error.includes("token has expired")) {
+				//} else if (err.data.error.includes("token has expired")) {
 
-					alert("Your session seems to be expired, please log in again");
-					handleLogout();
+				//	alert("Your session seems to be expired, please log in again");
+				//	handleLogout();
 
-				} else
+				//} else
 					console.error(err);
 			});
 	};

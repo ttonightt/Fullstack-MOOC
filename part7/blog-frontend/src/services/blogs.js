@@ -3,9 +3,14 @@ const baseUrl = "/api/posts";
 
 const getAll = async () => {
 
-	const request = axios.get(baseUrl);
-	const response = await request;
-	return response.data;
+	const res = await axios.get(baseUrl);
+	return res.data;
+};
+
+const get = async id => {
+
+	const res = await axios.get(`${baseUrl}/${id}`);
+	return res.data;
 };
 
 const create = async ({title, author, url}, token) => {
@@ -47,9 +52,24 @@ const remove = async (id, token) => {
 	return res.data;
 };
 
+const like = async (id, token) => {
+
+	const config = {
+		headers: {
+			Authorization: `Bearer ${token}`
+		}
+	};
+
+	const res = await axios.post(`${baseUrl}/${id}/like`, config);
+
+	return res.data;
+};
+
 export default {
 	getAll,
+	get,
 	create,
 	remove,
-	modify
+	modify,
+	like
 };

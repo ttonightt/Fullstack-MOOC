@@ -25,7 +25,7 @@ export const Blog = ({ posts, user, onDelete, onLike }) => {
 						</TableHead>
 						<TableBody>
 							{
-								posts
+								[...posts]
 									.sort((a, b) => b.likes - a.likes)
 									.map((post, i) => 
 										<Post
