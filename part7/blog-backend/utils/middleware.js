@@ -71,10 +71,14 @@ const userExtractor = async (req, res, next) => {
 
 	if (!user) {
 
-		return res.status(401).json({error: "invalid token"});
+		return res.status(404).json({error: "invalid token, user not found"});
 	}
 
-	req.user = user;
+	req.user = {
+		username: user.username,
+		name: user.name,
+		id: user.id
+	};
 
 	next();
 };

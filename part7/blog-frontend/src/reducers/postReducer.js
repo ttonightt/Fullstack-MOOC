@@ -3,15 +3,47 @@ import postService from "../services/blogs";
 
 
 export const removePost = createAsyncThunk(
-	"user/likeStatus",
-	async ({ id }, thunk) => {
-
-		const state = thunk.getState();
+	"user/removeStatus",
+	async ({ id, token }, thunk) => {
 
 		try {
-			await postService.remove(id);
+			await postService.remove(id, token);
 
-			return state.filter(pst => pst.id !== id);
+			return { id };
+
+		} catch ({ status, response }) {
+
+			return thunk.rejectWithValue({
+				status,
+				data: response.data
+			});
+		}
+	}
+);
+
+export const likePost = createAsyncThunk(
+	"user/likeStatus",
+	async ({ id, token }, thunk) => {
+
+		try {
+			return await postService.like(id, token);
+
+		} catch ({ status, response }) {
+
+			return thunk.rejectWithValue({
+				status,
+				data: response.data
+			});
+		}
+	}
+);
+
+export const dislikePost = createAsyncThunk(
+	"user/dislikeStatus",
+	async ({ id, token }, thunk) => {
+
+		try {
+			return await postService.dislike(id, token);
 
 		} catch ({ status, response }) {
 
@@ -41,14 +73,24 @@ const postSlice = createSlice({
 	},
 	extraReducers (builder) {
 
-		//builder.addCase(likePost.fulfilled, (state, {payload}) => {
+		builder.addCase(likePost.fulfilled, (state, {payload}) => {
 
-		//	return payload;
-		//});
+			return state.map(post => post.id === payload.id ? payload : post);
+		});
+
+		builder.addCase(dislikePost.fulfilled, (state, {payload}) => {
+
+			return state.map(post => post.id === payload.id ? payload : post);
+		});
+
+		builder.addCase(removePost.fulfilled, (state, {payload}) => {
+
+			return state.filter(post => post.id !== payload.id);
+		});
 	}
 });
 
-const { setPosts, replacePost } = postSlice.actions;
+const { setPosts } = postSlice.actions;
 export default postSlice.reducer;
 
 
@@ -59,15 +101,5 @@ export const fetchPosts = () => {
 		const posts = await postService.getAll();
 
 		dispatch(setPosts(posts));
-	}
-};
-
-export const likePost = (id, token) => {
-
-	return async dispatch => {
-
-		const post = await postService.like(id, token);
-
-		dispatch(replacePost({id, post}));
 	}
 };

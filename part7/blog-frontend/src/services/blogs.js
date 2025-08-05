@@ -60,7 +60,20 @@ const like = async (id, token) => {
 		}
 	};
 
-	const res = await axios.post(`${baseUrl}/${id}/like`, config);
+	const res = await axios.post(`${baseUrl}/${id}/like`, {}, config);
+
+	return res.data;
+};
+
+const dislike = async (id, token) => {
+
+	const config = {
+		headers: {
+			Authorization: `Bearer ${token}`
+		}
+	};
+
+	const res = await axios.post(`${baseUrl}/${id}/dislike`, {}, config);
 
 	return res.data;
 };
@@ -71,5 +84,6 @@ export default {
 	create,
 	remove,
 	modify,
-	like
+	like,
+	dislike
 };

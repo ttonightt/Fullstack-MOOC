@@ -9,8 +9,8 @@ import { Togglable } from "./components/Togglable";
 import { Container } from "@mui/material";
 
 import { useDispatch, useSelector } from "react-redux";
-import { logoutUser, fetchUser } from "./reducers/userReducer";
-import { fetchPosts, likePost } from "./reducers/postReducer";
+import { logoutUser, loginUser, checkUser } from "./reducers/loginReducer";
+import { fetchPosts, likePost, dislikePost, removePost } from "./reducers/postReducer";
 
 import blogService from "./services/blogs";
 
@@ -31,8 +31,15 @@ const App = () => {
 
 	useEffect(() => {
 
-		dispatch(fetchPosts());
+		if (user !== null)
+			dispatch(checkUser()).unwrap().catch(e => console.log(e));
 	}, []);
+
+	useEffect(() => {
+
+		if (user !== null)
+			dispatch(fetchPosts());
+	}, [user]);
 
 	const logInfo = (...messages) => {
 
@@ -58,7 +65,7 @@ const App = () => {
 
 	const handleLogin = (username, password) => {
 
-		dispatch(fetchUser({username, password}))
+		dispatch(loginUser({username, password}))
 			.unwrap()
 			.then(() => {
 
@@ -101,50 +108,36 @@ const App = () => {
 
 	const handleDelete = id => {
 
-		//blogService
-		//	.remove(id, user.token)
-		//	.then(() => {
+		dispatch(removePost({id, token: user.token}))
+			.unwrap()
+			.then(() => {
 
-		//		setPosts(posts.filter(post => post.id !== id));
+				logInfo("Post was successfully deleted!");
+			})
+			.catch(e => {
 
-		//		logInfo("Post was successfully deleted!");
-		//	})
-		//	.catch(err => {
+				if (e.data.error.includes("invalid token")) {
 
-		//		if (err.response.data.error.includes("invalid token")) {
+					if (confirm("Invalid token. Would you like to start new user session?"))
+						handleLogout();
 
-		//			alert("Invalid token");
-		//			handleLogout();
+				} else if (e.data.error.includes("token has expired")) {
 
-		//		} else if (err.response.data.error.includes("token has expired")) {
+					alert("Your session seems to be expired, please log in again");
+					handleLogout();
 
-		//			alert("Your session seems to be expired, please log in again");
-		//			handleLogout();
-
-		//		} else
-		//			console.error(err);
-		//	});
+				} else
+					console.error(e);
+			});
 	};
 
-	const handleLike = id => {
+	const handleLike = (id, liked) => {
 
-		dispatch(likePost({id, token: user.token}))
-			.unwrap()
-			.catch(err => {
+		if (liked) {
 
-				//if (err.data.error.includes("invalid token")) {
-
-				//	alert("Invalid token, please log in");
-				//	handleLogout();
-
-				//} else if (err.data.error.includes("token has expired")) {
-
-				//	alert("Your session seems to be expired, please log in again");
-				//	handleLogout();
-
-				//} else
-					console.error(err);
-			});
+			dispatch(dislikePost({id, token: user.token}));
+		} else
+			dispatch(likePost({id, token: user.token}));
 	};
 
 	if (user) {

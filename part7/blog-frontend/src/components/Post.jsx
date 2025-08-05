@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 
 import { TableRow, TableCell, Button } from '@mui/material';
 
+
 export const Post = ({ post, user, id, onDelete, onLike }) => {
 	
 	const [visibility, setVisibility] = useState(false);
@@ -16,6 +17,8 @@ export const Post = ({ post, user, id, onDelete, onLike }) => {
 		onDelete(post.id);
 	};
 
+	const likedByUser = post.likes.some(item => item.id === user.id);
+
 	return (<>
 		<TableRow>
 			<TableCell>{id}</TableCell>
@@ -26,10 +29,10 @@ export const Post = ({ post, user, id, onDelete, onLike }) => {
 				<i>by</i> {post.author}
 			</TableCell>
 			<TableCell className="likes" data-testid="likes">
-				<b>{post.likes}</b>
+				<b>{post.likes.length} {post.likes.reduce((str, item) => str + " " + item.name[0], "")}</b>
 			</TableCell>
 			<TableCell>
-				<Button onClick={() => onLike(post.id, post.likes + 1)} data-testid="like-button">❤️</Button>
+				<Button onClick={() => onLike(post.id, likedByUser)} data-testid="like-button">{likedByUser ? "🩶" : "❤️"}</Button>
 			</TableCell>
 			<TableCell>
 				<Button onClick={toggleVisibility} data-testid="toggle-button">{visibility ? "Hide" : "Show"}</Button>

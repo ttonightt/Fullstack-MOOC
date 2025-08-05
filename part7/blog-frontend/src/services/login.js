@@ -9,4 +9,17 @@ const login = async credits => {
 	return res.data;
 };
 
-export default {login};
+const check = async token => {
+
+	const config = {
+		headers: {
+			Authorization: `Bearer ${token}`
+		}
+	};
+
+	const res = await axios.get(baseUrl, config);
+
+	return res.data;
+};
+
+export default {login, check};

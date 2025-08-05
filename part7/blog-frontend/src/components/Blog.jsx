@@ -10,7 +10,7 @@ export const Blog = ({ posts, user, onDelete, onLike }) => {
 
 		case 0:
 			return <p>You have got no posts yet!</p>
-		
+
 		default:
 			return (
 				<TableContainer component={Paper}>

@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const {SECRET} = require("../utils/config");
 
 const loginRouter = require("express").Router();
+const middleware = require("../utils/middleware");
 
 const User = require("../models/user");
 
@@ -21,19 +22,32 @@ loginRouter.post("/", async (req, res, next) => {
 
 	const user_ = {
 		username,
-		id: user._id
+		id: user.id
 	};
 
 	const token = jwt.sign(
 		user_, 
 		SECRET,
-		{expiresIn: 60 * 15}
+		{expiresIn: 60 * 15} // 60 * 15
 	);
 
 	res.status(200).send({
 		token,
 		username,
-		name: user.name
+		name: user.name,
+		id: user.id
+	});
+});
+
+loginRouter.get("/", middleware.userExtractor, async (req, res, next) => {
+
+	const {user} = req;
+
+	return res.status(200).send({
+		token: req.token,
+		username: user.username,
+		name: user.name,
+		id: user.id
 	});
 });
 

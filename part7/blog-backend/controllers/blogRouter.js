@@ -12,19 +12,27 @@ const mergeObjects = require("../utils/mergeObjects");
 
 blogRouter.get("/", async (req, res) => {
 
-	const posts = await Post.find({}).populate("user", {username: true, name: true});
+	const posts = await Post
+		.find({})
+		.populate("user", {username: true, name: true})
+		.populate("likes", {username: true, name: true});
 
 	res.json(posts);
 });
+
 
 blogRouter.get("/:id", async (req, res) => {
 
 	const id = req.params.id;
 
-	const post = await Post.findById(id);
+	const post = await Post
+		.findById(id)
+		.populate("user", {username: true, name: true})
+		.populate("likes", {username: true, name: true});
 
 	res.json(post);
 });
+
 
 blogRouter.post("/", middleware.userExtractor, async (req, res, next) => {
 
@@ -49,34 +57,94 @@ blogRouter.post("/", middleware.userExtractor, async (req, res, next) => {
 		author,
 		url,
 		likes: [],
-		user: user._id
+		user: user.id
 	});
 
 	const post_ = await post.save();
 
-	await post_.populate("user", {username: true, name: true});
+	await post_.populate("user", {username: true, name: true})
+	await post_.populate("likes", {username: true, name: true});
 
-	user.posts = user.posts.concat(post_._id);
+	user.posts = user.posts.concat(post_.id);
 
 	await user.save();
 
 	res.status(201).json(post_);
 });
 
+
+blogRouter.post("/:id/like", middleware.userExtractor, async (req, res, next) => {
+
+	const id = req.params.id;
+	const post = await Post.findById(id);
+
+	if (!post)
+		return res.status(404).end();
+
+	const userId = req.user.id;
+
+	if (!post.likes.includes(userId)) {
+
+		post.likes.push(userId);
+
+		const post_ = await post.save();
+
+		await post_.populate("user", {username: true, name: true})
+		await post_.populate("likes", {username: true, name: true});
+
+		return res.json(post_);
+	}
+
+	return res.status(409).json({
+		error: "The post was already liked!"
+	});
+});
+
+
+blogRouter.post("/:id/dislike", middleware.userExtractor, async (req, res, next) => {
+
+	const id = req.params.id;
+	const post = await Post.findById(id);
+
+	if (!post)
+		return res.status(404).end();
+
+	const userId = req.user.id;
+
+	if (post.likes.includes(userId)) {
+
+		post.likes = post.likes.filter(item => userId.toString() !== item.toString());
+
+		const post_ = await post.save();
+
+		await post_.populate("user", {username: true, name: true});
+		await post_.populate("likes", {username: true, name: true});
+
+		return res.json(post_);
+	}
+
+	return res.status(509).json({
+		error: "You haven't liked this post yet"
+	});
+});
+
+
 blogRouter.delete("/:id", middleware.userExtractor, async (req, res, next) => {
 
 	const id = req.params.id;
-
 	const post = await Post.findById(id);
 
-	if (req.user._id.toString() !== post.user.toString()) {
+	if (!post)
+		return res.status(204).end();
+
+	if (req.user.id !== post.user.toString()) {
 
 		return res.status(401).json({error: "You cannot delete anothers post"});
 	}
 
 	const user = await User.findById(post.user);
 
-	user.posts = user.posts.filter(p => p._id.toString() !== id);
+	user.posts = user.posts.filter(p => p.id !== id);
 
 	await user.save();
 
@@ -85,34 +153,6 @@ blogRouter.delete("/:id", middleware.userExtractor, async (req, res, next) => {
 	res.status(204).end();
 });
 
-blogRouter.post("/:id/like", middleware.userExtractor, async (req, res, next) => {
-
-	const id = req.params.id;
-
-	const post = await Post.findById(id);
-
-	if (!post) {
-
-		return res.status(404).end();
-	}
-
-	const userId = req.user._id.toString();
-
-	if (!post.likes.includes(userId)) {
-
-		post.likes.push(userId);
-
-		const post_ = await post.save();
-
-		await post_.populate("user", {username: true, name: true});
-
-		return res.json(post_);
-	}
-
-	await post.populate("user", {username: true, name: true});
-
-	return res.json(post);
-});
 
 blogRouter.put("/:id", middleware.userExtractor, async (req, res, next) => {
 
@@ -126,18 +166,20 @@ blogRouter.put("/:id", middleware.userExtractor, async (req, res, next) => {
 		return res.status(404).end();
 	}
 
-	if (req.user._id.toString() !== post.user.toString()) {
+	if (req.user.id !== post.user.toString()) {
 
 		return res.status(401).json({error: "You cannot modify another's post"});
 	}
 
 	mergeObjects(post, {title, author, url, likes});
 
-	const post_ = await post.save();
-
-	await post_.populate("user", {username: true, name: true});
+	const post_ = await post
+		.save()
+		.populate("user", {username: true, name: true})
+		.populate("likes", {username: true, name: true});
 
 	return res.json(post_);
 });
+
 
 module.exports = blogRouter;

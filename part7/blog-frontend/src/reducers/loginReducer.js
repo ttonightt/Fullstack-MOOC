@@ -2,12 +2,29 @@ import { createAsyncThunk, createSlice, current } from "@reduxjs/toolkit";
 import loginService from "../services/login";
 
 
-export const fetchUser = createAsyncThunk(
+export const loginUser = createAsyncThunk(
 	"user/fetchStatus",
 	async (user, thunk) => {
 
 		try {
 			return await loginService.login(user);
+
+		} catch ({ status, response }) {
+
+			return thunk.rejectWithValue({
+				status,
+				data: response.data
+			});
+		}
+	}
+);
+
+export const checkUser = createAsyncThunk(
+	"user/fetchStatus",
+	async (data, thunk) => {
+
+		try {
+			return await loginService.check(JSON.parse(window.localStorage.getItem("user"))?.token);
 
 		} catch ({ status, response }) {
 
@@ -32,11 +49,18 @@ const userSlice = createSlice({
 	},
 	extraReducers (builder) {
 
-		builder.addCase(fetchUser.fulfilled, (state, {payload}) => {
+		builder.addCase(loginUser.fulfilled, (state, {payload}) => {
 
 			window.localStorage.setItem("user", JSON.stringify(payload));
 
 			return payload;
+		});
+
+		builder.addCase(checkUser.rejected, () => {
+
+			window.localStorage.removeItem("user");
+
+			return null;
 		});
 	}
 });

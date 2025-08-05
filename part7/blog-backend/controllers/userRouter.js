@@ -48,7 +48,7 @@ userRouter.delete("/:id", middleware.userExtractor, async (req, res, next) => {
 
 	const id = req.params.id;
 
-	if (req.user.id.toString() !== id) {
+	if (req.user.id !== id) {
 
 		return res.status(401).json({error: "You cannot delete another user"});
 	}
