@@ -23,8 +23,16 @@ export const checkUser = createAsyncThunk(
 	"login/checkStatus",
 	async (data, thunk) => {
 
+		const user = JSON.parse(window.localStorage.getItem("user"));
+
+		if (!user)
+			return thunk.rejectWithValue({
+				status: 0,
+				data: { error: "A user isn't saved in the local browser storage" }
+			});
+
 		try {
-			return await loginService.check(JSON.parse(window.localStorage.getItem("user"))?.token);
+			return await loginService.check(user.token);
 
 		} catch ({ status, response }) {
 
