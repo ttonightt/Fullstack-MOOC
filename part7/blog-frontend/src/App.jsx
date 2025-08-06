@@ -2,17 +2,14 @@ import { useState, useEffect, useRef } from "react";
 import { Blog } from "./components/Blog";
 import { LoginForm } from "./components/LoginForm";
 import { PostForm } from "./components/PostForm";
-import { useNotification } from "./notification";
-import { NotificationBody } from "./NotificationBody";
+import { useNotify } from "./hooks";
 import { Togglable } from "./components/Togglable";
 
 import { Container } from "@mui/material";
 
 import { useDispatch, useSelector } from "react-redux";
 import { logoutUser, loginUser, checkUser } from "./reducers/loginReducer";
-import { fetchPosts, likePost, dislikePost, removePost } from "./reducers/postReducer";
-
-import blogService from "./services/blogs";
+import { fetchPosts, createPost, likePost, dislikePost, removePost } from "./reducers/postReducer";
 
 
 const App = () => {
@@ -20,7 +17,7 @@ const App = () => {
 	const posts = useSelector(state => state.posts);
 	const dispatch = useDispatch();
 
-	const [notification, notify] = useNotification();
+	const notify = useNotify();
 
 	const togglableRef = useRef();
 
@@ -32,7 +29,7 @@ const App = () => {
 	useEffect(() => {
 
 		if (user !== null)
-			dispatch(checkUser()).unwrap().catch(e => console.log(e));
+			dispatch(checkUser());
 	}, []);
 
 	useEffect(() => {
@@ -41,64 +38,40 @@ const App = () => {
 			dispatch(fetchPosts());
 	}, [user]);
 
-	const logInfo = (...messages) => {
-
-		notify({
-			type: "log",
-			timeout: 5000,
-			messages
-		});
-
-		console.log(...messages);
-	};
-
-	const logError = (...messages) => {
-
-		notify({
-			type: "error",
-			timeout: 5000,
-			messages
-		});
-
-		console.error(...messages);
-	};
-
 	const handleLogin = (username, password) => {
 
 		dispatch(loginUser({username, password}))
 			.unwrap()
 			.then(() => {
 
-				logInfo("You logged in successfully!");
+				notify.log("You logged in successfully!");
 			})
 			.catch(e => {
 
 				if (e.status === 401)
-					logError("Wrong credentials!");
+					notify.error("Wrong credentials!");
 			});
 	};
 
-	const handleSavePost = ({title, author, url}) => {
+	const handleSavePost = post => {
 
-		//blogService
-		//	.create({title, author, url}, user.token)
-		//	.then(post => {
+		dispatch(createPost({post, token: user.token}))
+			.then(post_ => {
 
-		//		setPosts(posts.concat(post));
-		//		logInfo("You added the post:", post.title, "by", post.author);
+				notify.log("You added the post");
 
-		//		toggleVisibility();
-		//	})
-		//	.catch(err => {
+				toggleVisibility();
+			})
+			.catch(e => {
 
-		//		if (err.response.data.error.includes("token has expired")) {
+				if (e.data.error.includes("token has expired")) {
 
-		//			alert("Your session seems to be expired, please log in again");
-		//			handleLogout();
+					alert("Your session seems to be expired, please log in again");
+					handleLogout();
 
-		//		} else
-		//			console.error(err);
-		//	});
+				} else
+					console.error(e);
+			});
 	};
 
 	const handleLogout = () => {
@@ -112,9 +85,11 @@ const App = () => {
 			.unwrap()
 			.then(() => {
 
-				logInfo("Post was successfully deleted!");
+				notify.log("Post was successfully deleted!");
 			})
 			.catch(e => {
+
+				console.error(e);
 
 				if (e.data.error.includes("invalid token")) {
 
@@ -125,19 +100,30 @@ const App = () => {
 
 					alert("Your session seems to be expired, please log in again");
 					handleLogout();
-
-				} else
-					console.error(e);
+				}
 			});
 	};
 
 	const handleLike = (id, liked) => {
+		(
+			liked
+			?
+			dispatch(dislikePost({id, token: user.token}))
+			:
+			dispatch(likePost({id, token: user.token}))
+		)
+			.unwrap()
+			.catch(e => {
 
-		if (liked) {
+				console.error(e);
 
-			dispatch(dislikePost({id, token: user.token}));
-		} else
-			dispatch(likePost({id, token: user.token}));
+				if (e.data.error.includes("token has expired")) {
+
+					alert("Your session seems to be expired, please log in again");
+					handleLogout();
+
+				}
+			});
 	};
 
 	if (user) {
@@ -152,7 +138,6 @@ const App = () => {
 					<PostForm onSubmit={handleSavePost} />
 				</Togglable>
 				<Blog posts={posts} user={user} onDelete={handleDelete} onLike={handleLike} />
-				<NotificationBody ofNotification={notification}/>
 			</Container>
 		);
 	} else
@@ -160,7 +145,6 @@ const App = () => {
 			<div>
 				<h2>Login</h2>
 				<LoginForm onSubmit={handleLogin} />
-				<NotificationBody ofNotification={notification}/>
 			</div>
 			<p>
 				<i>* Login session lasts for 15 minutes only!</i>

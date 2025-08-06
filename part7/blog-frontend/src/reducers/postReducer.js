@@ -2,6 +2,23 @@ import { createAsyncThunk, createSlice, current } from "@reduxjs/toolkit";
 import postService from "../services/blogs";
 
 
+export const createPost = createAsyncThunk(
+	"user/createStatus",
+	async ({ post, token }, thunk) => {
+
+		try {
+			return await postService.create(post, token);
+
+		} catch ({ status, response }) {
+
+			return thunk.rejectWithValue({
+				status,
+				data: response.data
+			});
+		}
+	}
+);
+
 export const removePost = createAsyncThunk(
 	"user/removeStatus",
 	async ({ id, token }, thunk) => {
@@ -64,14 +81,14 @@ const postSlice = createSlice({
 		setPosts (state, {payload}) {
 
 			return payload;
-		},
-
-		replacePost (state, {payload}) {
-
-			return state.map(post => post.id === payload.id ? payload.post : post);
-		} 
+		}
 	},
 	extraReducers (builder) {
+
+		builder.addCase(createPost.fulfilled, (state, {payload}) => {
+
+			return state.concat(payload);
+		});
 
 		builder.addCase(likePost.fulfilled, (state, {payload}) => {
 

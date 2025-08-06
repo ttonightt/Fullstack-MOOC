@@ -3,7 +3,7 @@ import loginService from "../services/login";
 
 
 export const loginUser = createAsyncThunk(
-	"user/fetchStatus",
+	"login/loginStatus",
 	async (user, thunk) => {
 
 		try {
@@ -20,7 +20,7 @@ export const loginUser = createAsyncThunk(
 );
 
 export const checkUser = createAsyncThunk(
-	"user/fetchStatus",
+	"login/checkStatus",
 	async (data, thunk) => {
 
 		try {
@@ -38,7 +38,7 @@ export const checkUser = createAsyncThunk(
 
 const userSlice = createSlice({
 
-	name: "user",
+	name: "login",
 	initialState: JSON.parse(window.localStorage.getItem("user")),
 	reducers: {
 
