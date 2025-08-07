@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 
-import { TableRow, TableCell, Button } from '@mui/material';
+import { TableRow, TableCell, Button, Grid, Paper, AvatarGroup, Avatar } from '@mui/material';
 
 
 export const Post = ({ post }) => {
@@ -62,30 +63,42 @@ export const Post = ({ post }) => {
 	};
 
 	return (<>
-		<TableRow>
-			<TableCell className="title">
-				{post.title}
-			</TableCell>
-			<TableCell className="author">
-				<i>by</i> {post.author}
-			</TableCell>
-			<TableCell className="likes" data-testid="likes">
-				<b>{post.likes.length} {post.likes.reduce((str, item) => str + " " + item.name[0], "")}</b>
-			</TableCell>
-			<TableCell>
+		<Grid container size={12}>
+			<Grid size="grow">
+				<Paper>
+					<Link to={post.id}>
+						{post.title}
+					</Link>
+				</Paper>
+			</Grid>
+			<Grid size="auto">
+				<Paper>
+					<i>by</i> {post.author}
+				</Paper>
+			</Grid>
+			<Grid size="auto">
+				<Paper>
+					{post.likes.length}
+					<AvatarGroup max={4} spacing={24}>
+						{
+							post.likes.map(item => 
+								<Avatar key={item.id} alt={item.username} src={`../public/avatars/${item.id}.png`} />
+							)
+						}
+					</AvatarGroup>
+					<b>{post.likes.length} {post.likes.reduce((str, item) => str + " " + item.name[0], "")}</b>
+				</Paper>
+			</Grid>
+			<Grid size="auto">
 				<Button onClick={handleLike} data-testid="like-button">{likedByUser ? "🩶" : "❤️"}</Button>
-			</TableCell>
-		</TableRow>
-		<TableRow className="url">
-			<TableCell></TableCell>
-			<TableCell colSpan={4}><u>URL:</u> {post.url}</TableCell>
-		</TableRow>
-		<TableRow>
-			<TableCell colSpan={4}>
-			{
-				(user && post.user.username === user.username) && <Button onClick={handleDelete}>Delete</Button>
-			}
-			</TableCell>
-		</TableRow>
+			</Grid>
+			{/*<TableRow>
+				<TableCell colSpan={4}>
+				{
+					(user && post.user.username === user.username) && <Button onClick={handleDelete}>Delete</Button>
+				}
+				</TableCell>
+			</TableRow>*/}
+		</Grid>
 	</>);
 };

@@ -3,7 +3,7 @@ import { useEffect } from "react";
 
 import { fetchPosts } from "../../reducers/postReducer";
 
-import { Table, TableContainer, TableHead, TableBody, TableRow, TableCell, Paper } from '@mui/material';
+import { Table, TableContainer, TableHead, TableBody, TableRow, TableCell, Paper, Grid } from '@mui/material';
 import { Post } from "../Post";
 
 
@@ -18,29 +18,18 @@ const PostListSection = () => {
 	}, []);
 
 	return (
-		<TableContainer component={Paper}>
-			<Table>
-				<TableHead>
-					<TableRow>
-						<TableCell>Title</TableCell>
-						<TableCell>Author</TableCell>
-						<TableCell colSpan={3}>Likes</TableCell>
-					</TableRow>
-				</TableHead>
-				<TableBody>
-					{
-						[...posts]
-							.sort((a, b) => b.likes - a.likes)
-							.map((post, i) => 
-								<Post
-									key={post.id}
-									post={post}
-								/>
-							)
-					}
-				</TableBody>
-			</Table>
-		</TableContainer>
+		<Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+			{
+				[...posts]
+					.sort((a, b) => b.likes - a.likes)
+					.map((post, i) => 
+						<Post
+							key={post.id}
+							post={post}
+						/>
+					)
+			}
+		</Grid>
 	);
 };
 

@@ -41,6 +41,7 @@ if (config.NODE_ENV === "test") {
 }
 
 app.use(express.static("dist"));
+app.use("/public", express.static("public"));
 app.use(express.json());
 
 app.use(middleware.requestLogger);

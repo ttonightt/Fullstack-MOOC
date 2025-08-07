@@ -6,11 +6,10 @@ import { Route, Routes } from "react-router-dom";
 import { logoutUser, loginUser, checkUser } from "./reducers/loginReducer";
 import { fetchPosts, createPost, likePost, dislikePost, removePost } from "./reducers/postReducer";
 
-import { Container } from "@mui/material";
+import { Box, Container } from "@mui/material";
 
 
 import LoginSection from "./components/sections/LoginSection";
-import SignupSection from "./components/sections/SignupSection";
 import UserListSection from "./components/sections/UserListSection";
 import PostListSection from "./components/sections/PostListSection";
 import SingleUserSection from "./components/sections/SingleUserSection";
@@ -72,24 +71,25 @@ const App = () => {
 		dispatch(logoutUser());
 	};
 
-	return (<>
-		<header>{user ? user.name : "Loading..."}</header>
-		<Container>
-			<Routes>
-				{/*<Route path="/" element={} />*/}
-				<Route path="/login" element={<LoginSection/>} />
-				<Route path="/signup" element={<SignupSection/>} />
-				<Route path="/users" element={<UserListSection/>} />
-				<Route path="/posts" element={<PostListSection/>} />
-				<Route path="/users/:id" element={(<>
-					<SingleUserSection/>
-					<PostListSection/>
-				</>)} />
-				<Route path="/posts/:id" element={<SinglePostSection/>} />
-				<Route path="/new-post" element={<NewPostSection/>} />
-			</Routes>
-		</Container>
-	</>);
+	return (
+		<Box color="primary">
+			<header>{user ? user.name : "Loading..."}</header>
+			<Container maxWidth="md">
+				<Routes>
+					{/*<Route path="/" element={} />*/}
+					<Route path="/login" element={<LoginSection/>} />
+					<Route path="/users" element={<UserListSection/>} />
+					<Route path="/posts" element={<PostListSection/>} />
+					<Route path="/users/:id" element={(<>
+						<SingleUserSection/>
+						<PostListSection/>
+					</>)} />
+					<Route path="/posts/:id" element={<SinglePostSection/>} />
+					<Route path="/new-post" element={<NewPostSection/>} />
+				</Routes>
+			</Container>
+		</Box>
+	);
 
 	//if (user) {
 	//	return (
