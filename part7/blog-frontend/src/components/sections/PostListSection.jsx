@@ -3,7 +3,7 @@ import { useEffect } from "react";
 
 import { fetchPosts } from "../../reducers/postReducer";
 
-import { Table, TableContainer, TableHead, TableBody, TableRow, TableCell, Paper, Grid } from '@mui/material';
+import { Grid } from '@mui/material';
 import { Post } from "../Post";
 
 

@@ -3,7 +3,7 @@ import loginService from "../services/login";
 
 
 export const loginUser = createAsyncThunk(
-	"login/loginStatus",
+	"session/loginStatus",
 	async (user, thunk) => {
 
 		try {
@@ -20,7 +20,7 @@ export const loginUser = createAsyncThunk(
 );
 
 export const checkUser = createAsyncThunk(
-	"login/checkStatus",
+	"session/checkStatus",
 	async (data, thunk) => {
 
 		const user = JSON.parse(window.localStorage.getItem("user"));
@@ -44,13 +44,14 @@ export const checkUser = createAsyncThunk(
 	}
 );
 
+
 const userSlice = createSlice({
 
-	name: "login",
-	initialState: JSON.parse(window.localStorage.getItem("user")),
+	name: "session",
+	initialState: JSON.parse(window.localStorage.getItem("session")),
 	reducers: {
 
-		setUser (state, {payload}) {
+		setSessionUser (state, {payload}) {
 
 			return payload;
 		}
@@ -59,14 +60,16 @@ const userSlice = createSlice({
 
 		builder.addCase(loginUser.fulfilled, (state, {payload}) => {
 
-			window.localStorage.setItem("user", JSON.stringify(payload));
+			const session = {user: payload};
 
-			return payload;
+			window.localStorage.setItem("session", JSON.stringify(session));
+
+			return session;
 		});
 
 		builder.addCase(checkUser.rejected, () => {
 
-			window.localStorage.removeItem("user");
+			window.localStorage.removeItem("session");
 
 			return null;
 		});
@@ -83,6 +86,6 @@ export const logoutUser = () => {
 
 		window.localStorage.removeItem("user");
 
-		dispatch(setUser(null));
+		dispatch(setSessionUser(null));
 	};
 };

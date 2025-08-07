@@ -1,17 +1,17 @@
 import { configureStore } from "@reduxjs/toolkit";
 
-import loginReducer from "./reducers/loginReducer";
+import seshReducer from "./reducers/seshReducer";
 import postReducer from "./reducers/postReducer";
 import notificationReducer from "./reducers/notificationReducer";
-import userListReducer from "./reducers/userListReducer";
+import userReducer from "./reducers/userReducer";
 
 
 const store = configureStore({
 	reducer: {
-		user: loginReducer,
+		session: seshReducer,
 		posts: postReducer,
 		notification: notificationReducer,
-		userlist: userListReducer
+		users: userReducer
 	}
 });
 

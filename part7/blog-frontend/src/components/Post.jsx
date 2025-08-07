@@ -6,12 +6,10 @@ import { TableRow, TableCell, Button, Grid, Paper, AvatarGroup, Avatar } from '@
 
 export const Post = ({ post }) => {
 
-	const user = useSelector(state => state.user);
+	const seshUser = useSelector(state => state.session)?.user;
 	const dispatch = useDispatch();
 
 	const { id } = post;
-
-	const likedByUser = user ? post.likes.some(item => item.id === user.id) : false;
 
 	const handleDelete = () => {
 
@@ -61,19 +59,19 @@ export const Post = ({ post }) => {
 				}
 			});
 	};
+	
+	const likable = !!seshUser;
+	const liked = likable ? post.likes.some(item => item.id === sesh.user.id) : false;
 
-	return (<>
+	return (
 		<Grid container size={12}>
 			<Grid size="grow">
 				<Paper>
 					<Link to={post.id}>
-						{post.title}
+						<h3>{post.title}</h3>
 					</Link>
-				</Paper>
-			</Grid>
-			<Grid size="auto">
-				<Paper>
-					<i>by</i> {post.author}
+					<Avatar key={post.user.id} alt={post.user.username} src={`/public/avatars/${post.user.id}.png`} />
+					{post.user.name}
 				</Paper>
 			</Grid>
 			<Grid size="auto">
@@ -82,15 +80,14 @@ export const Post = ({ post }) => {
 					<AvatarGroup max={4} spacing={24}>
 						{
 							post.likes.map(item => 
-								<Avatar key={item.id} alt={item.username} src={`../public/avatars/${item.id}.png`} />
+								<Avatar key={item.id} alt={item.username} src={`/public/avatars/${item.id}.png`} />
 							)
 						}
 					</AvatarGroup>
-					<b>{post.likes.length} {post.likes.reduce((str, item) => str + " " + item.name[0], "")}</b>
 				</Paper>
 			</Grid>
 			<Grid size="auto">
-				<Button onClick={handleLike} data-testid="like-button">{likedByUser ? "🩶" : "❤️"}</Button>
+				<Button onClick={handleLike} data-testid="like-button">{liked ? "🩶" : "❤️"}</Button>
 			</Grid>
 			{/*<TableRow>
 				<TableCell colSpan={4}>
@@ -100,5 +97,5 @@ export const Post = ({ post }) => {
 				</TableCell>
 			</TableRow>*/}
 		</Grid>
-	</>);
+	);
 };

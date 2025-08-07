@@ -1,12 +1,14 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 
-import { fetchUserList } from "../../reducers/userListReducer";
+import { fetchUserList } from "../../reducers/userReducer";
+import { Grid } from "@mui/material";
+import User from "../User";
 
 
 const UserListSection = () => {
 
-	const userlist = useSelector(state => state.userlist);
+	const userlist = useSelector(state => state.users);
 	const dispatch = useDispatch();
 
 	useEffect(() => {
@@ -14,20 +16,20 @@ const UserListSection = () => {
 		dispatch(fetchUserList());
 	}, []);
 
-	if (userlist) {
+	if (userlist.length) {
 
-		return userlist.map(user => (
-
-			<div key={user.id}>
-				{user.username} {user.posts.length}
-				<ul>
-					{user.posts.map(post => 
-
-						<li key={post.id}>{post.title}</li>
-					)}
-				</ul>
-			</div>
-		));
+		return (
+			<Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+				{
+					userlist.map(user => 
+						<User
+							key={user.id}
+							user={user}
+						/>
+					)
+				}
+			</Grid>
+		);
 	} else {
 		return "Loading...";
 	}

@@ -1,70 +1,49 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNotify } from "./hooks";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Link, useNavigate } from "react-router-dom";
 
-import { logoutUser, loginUser, checkUser } from "./reducers/loginReducer";
+import { logoutUser, loginUser, checkUser } from "./reducers/seshReducer";
 import { fetchPosts, createPost, likePost, dislikePost, removePost } from "./reducers/postReducer";
 
-import { Box, Container } from "@mui/material";
+import { Avatar, Box, Button, Container } from "@mui/material";
 
-
-import LoginSection from "./components/sections/LoginSection";
-import UserListSection from "./components/sections/UserListSection";
-import PostListSection from "./components/sections/PostListSection";
-import SingleUserSection from "./components/sections/SingleUserSection";
-import SinglePostSection from "./components/sections/SinglePostSection";
-import NewPostSection from "./components/sections/NewPostSection";
+import Pages from "./components/Pages";
 
 
 const App = () => {
-	const user = useSelector(state => state.user);
-	const posts = useSelector(state => state.posts);
+
+	const seshUser = useSelector(state => state.session)?.user;
 	const dispatch = useDispatch();
 
 	const notify = useNotify();
 
 	useEffect(() => {
 
-		if (user !== null)
+		if (seshUser)
 			dispatch(checkUser());
 	}, []);
 
-	const handleLogin = (username, password) => {
+	//const handleSavePost = post => {
 
-		dispatch(loginUser({username, password}))
-			.unwrap()
-			.then(() => {
+	//	dispatch(createPost({post, token: user.token}))
+	//		.then(post_ => {
 
-				notify.log("You logged in successfully!");
-			})
-			.catch(e => {
+	//			notify.log("You added the post");
 
-				if (e.status === 401)
-					notify.error("Wrong credentials!");
-			});
-	};
+	//			toggleVisibility();
+	//		})
+	//		.catch(e => {
 
-	const handleSavePost = post => {
+	//			if (e.data.error.includes("token has expired")) {
 
-		dispatch(createPost({post, token: user.token}))
-			.then(post_ => {
+	//				alert("Your session seems to be expired, please log in again");
+	//				handleLogout();
 
-				notify.log("You added the post");
-
-				toggleVisibility();
-			})
-			.catch(e => {
-
-				if (e.data.error.includes("token has expired")) {
-
-					alert("Your session seems to be expired, please log in again");
-					handleLogout();
-
-				} else
-					console.error(e);
-			});
-	};
+	//			} else
+	//				console.error(e);
+	//		});
+	//};
 
 	const handleLogout = () => {
 
@@ -73,48 +52,35 @@ const App = () => {
 
 	return (
 		<Box color="primary">
-			<header>{user ? user.name : "Loading..."}</header>
+			<header>
+				<Link to="/posts">Posts</Link>
+				<Link to="/users">Users</Link>
+				{
+					seshUser
+					?
+					(<>
+						<Avatar alt={seshUser.username} src={`/public/avatars/${seshUser.id}.png`} />
+						<h5>{seshUser.username}</h5>
+						<Button>Log Out</Button>
+					</>)
+					:
+					<Link to="/login">
+						<Button>Log In</Button>
+					</Link>
+				}
+			</header>
 			<Container maxWidth="md">
 				<Routes>
 					{/*<Route path="/" element={} />*/}
-					<Route path="/login" element={<LoginSection/>} />
-					<Route path="/users" element={<UserListSection/>} />
-					<Route path="/posts" element={<PostListSection/>} />
-					<Route path="/users/:id" element={(<>
-						<SingleUserSection/>
-						<PostListSection/>
-					</>)} />
-					<Route path="/posts/:id" element={<SinglePostSection/>} />
-					<Route path="/new-post" element={<NewPostSection/>} />
+					<Route path="/login" element={<Pages.Login/>} />
+					<Route path="/users" element={<Pages.UserList/>} />
+					<Route path="/posts" element={<Pages.PostList/>} />
+					<Route path="/users/:id" element={<Pages.UserProfile/>} />
+					<Route path="/posts/:id" element={<Pages.Post/>} />
 				</Routes>
 			</Container>
 		</Box>
 	);
-
-	//if (user) {
-	//	return (
-			
-	//		<Container>
-	//			<h2>
-	//				Blogs of <i>{user.name}</i>&nbsp;
-	//				<button onClick={handleLogout}>Log out</button>
-	//			</h2>
-	//			<Togglable ref={togglableRef} buttonLabel="New Post">
-	//				<PostForm onSubmit={handleSavePost} />
-	//			</Togglable>
-	//			<Blog posts={posts} user={user} onDelete={handleDelete} onLike={handleLike} />
-	//		</Container>
-	//	);
-	//} else
-	//	return (<>
-	//		<div>
-	//			<h2>Login</h2>
-	//			<LoginForm onSubmit={handleLogin} />
-	//		</div>
-	//		<p>
-	//			<i>* Login session lasts for 15 minutes only!</i>
-	//		</p>
-	//	</>);
 };
 
 export default App;
