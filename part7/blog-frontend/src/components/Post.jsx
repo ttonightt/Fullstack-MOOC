@@ -61,7 +61,7 @@ export const Post = ({ post }) => {
 	};
 	
 	const likable = !!seshUser;
-	const liked = likable ? post.likes.some(item => item.id === sesh.user.id) : false;
+	const liked = likable ? post.likes.some(item => item.id === seshUser.id) : false;
 
 	return (
 		<Grid container size={12}>

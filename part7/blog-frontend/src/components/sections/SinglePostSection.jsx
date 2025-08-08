@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { Avatar, Container, AvatarGroup, Button } from "@mui/material";
 import { Link } from "react-router-dom";
 
-import ArrowBackIosRoundedIcon from "@mui/icons-material/ArrowBackIosRounded";
+import PostContextMenu from "../PostContextMenu";
 
 
 const SinglePostSection = ({ id }) => {
@@ -22,16 +22,13 @@ const SinglePostSection = ({ id }) => {
 
 	const handleLike = () => {};
 
-	const likable = !!seshUser;
+	const likable = seshUser && post;
 	const liked = likable ? post.likes.some(item => item.id === seshUser.id) : false;
 
 	if (post) {
 
 		return (
 			<Container maxWidth="sm">
-				<Link to="/posts">
-					<Button><ArrowBackIosRoundedIcon/></Button>
-				</Link>
 				<h2>{post.title}</h2>
 				<h4>
 					<i>by</i> <Avatar alt={post.user.username} src={`/public/avatars/${post.user.id}.png`} />
@@ -45,9 +42,11 @@ const SinglePostSection = ({ id }) => {
 						}
 					</AvatarGroup>
 					<Button onClick={handleLike} data-testid="like-button">{liked ? "🩶" : "❤️"}</Button>
+					<PostContextMenu id={id} />
 				</h4>
 				<hr />
-				<p>Lorem ipsum dolor sit amet...</p>
+				<p>{post.content}</p>
+				<hr />
 			</Container>
 		);
 	} else {

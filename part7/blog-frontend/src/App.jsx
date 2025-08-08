@@ -1,9 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNotify } from "./hooks";
-import { Route, Routes, Link, useNavigate } from "react-router-dom";
+import { Route, Routes, Link, useNavigate, useLocation } from "react-router-dom";
 
-import { logoutUser, loginUser, checkUser } from "./reducers/seshReducer";
+import { logoutUser, checkUser } from "./reducers/seshReducer";
 import { fetchPosts, createPost, likePost, dislikePost, removePost } from "./reducers/postReducer";
 
 import { Avatar, Box, Button, Container } from "@mui/material";
@@ -17,6 +17,8 @@ const App = () => {
 	const dispatch = useDispatch();
 
 	const notify = useNotify();
+
+	const location = useLocation();
 
 	useEffect(() => {
 
@@ -61,7 +63,7 @@ const App = () => {
 					(<>
 						<Avatar alt={seshUser.username} src={`/public/avatars/${seshUser.id}.png`} />
 						<h5>{seshUser.username}</h5>
-						<Button>Log Out</Button>
+						<Button onClick={handleLogout}>Log Out</Button>
 					</>)
 					:
 					<Link to="/login">
@@ -69,6 +71,7 @@ const App = () => {
 					</Link>
 				}
 			</header>
+
 			<Container maxWidth="md">
 				<Routes>
 					{/*<Route path="/" element={} />*/}

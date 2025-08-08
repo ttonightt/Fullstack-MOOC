@@ -9,7 +9,7 @@ const postSchema = mongoose.Schema({
 		type: String,
 		required: true
 	},
-	url: {
+	content: {
 		type: String,
 		required: true
 	},
@@ -22,7 +22,8 @@ const postSchema = mongoose.Schema({
 	user: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: "User"
-	}
+	},
+	comments: [ { type: String } ]
 });
 
 postSchema.set("toJSON", {

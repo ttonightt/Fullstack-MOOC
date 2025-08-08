@@ -13,7 +13,7 @@ const get = async id => {
 	return res.data;
 };
 
-const create = async ({title, author, url}, token) => {
+const create = async ({title, author, content}, token) => {
 
 	const config = {
 		headers: {
@@ -21,7 +21,7 @@ const create = async ({title, author, url}, token) => {
 		}
 	};
 
-	const res = await axios.post(baseUrl, {title, author, url}, config);
+	const res = await axios.post(baseUrl, {title, author, content}, config);
 
 	return res.data;
 };

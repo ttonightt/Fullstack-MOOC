@@ -36,7 +36,7 @@ blogRouter.get("/:id", async (req, res) => {
 
 blogRouter.post("/", middleware.userExtractor, async (req, res, next) => {
 
-	const {title, author, url} = req.body;
+	const {title, author, content} = req.body;
 
 	const decodedToken = jwt.verify(req.token, SECRET);
 
@@ -55,9 +55,10 @@ blogRouter.post("/", middleware.userExtractor, async (req, res, next) => {
 	const post = new Post({
 		title,
 		author,
-		url,
+		content,
 		likes: [],
-		user: user.id
+		user: user.id,
+		comments: []
 	});
 
 	const post_ = await post.save();
@@ -129,6 +130,27 @@ blogRouter.post("/:id/dislike", middleware.userExtractor, async (req, res, next)
 });
 
 
+blogRouter.post("/:id/comment", middleware.userExtractor, async (req, res, next) => {
+
+	const id = req.params.id;
+	const post = await Post.findById(id);
+
+	const comment = req.body.toString();
+
+	if (!post)
+		return res.status(404).end();
+
+	post.comments.push(comment);
+
+	const post_ = await post.save();
+
+	await post_.populate("user", {username: true, name: true})
+	await post_.populate("likes", {username: true, name: true});
+
+	return res.json(post_);
+});
+
+
 blogRouter.delete("/:id", middleware.userExtractor, async (req, res, next) => {
 
 	const id = req.params.id;
@@ -156,7 +178,7 @@ blogRouter.delete("/:id", middleware.userExtractor, async (req, res, next) => {
 
 blogRouter.put("/:id", middleware.userExtractor, async (req, res, next) => {
 
-	const {title, author, url, likes} = req.body;
+	const {title, author, content, comments} = req.body;
 	const id = req.params.id;
 
 	const post = await Post.findById(id);
@@ -171,12 +193,12 @@ blogRouter.put("/:id", middleware.userExtractor, async (req, res, next) => {
 		return res.status(401).json({error: "You cannot modify another's post"});
 	}
 
-	mergeObjects(post, {title, author, url, likes});
+	mergeObjects(post, {title, author, content, comments});
 
-	const post_ = await post
-		.save()
-		.populate("user", {username: true, name: true})
-		.populate("likes", {username: true, name: true});
+	const post_ = await post.save();
+
+	post_.populate("user", {username: true, name: true});
+	post_.populate("likes", {username: true, name: true});
 
 	return res.json(post_);
 });

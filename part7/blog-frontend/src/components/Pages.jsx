@@ -12,8 +12,8 @@ const UserList = () => <UserListSection/>;
 
 const PostList = () => (<>
 	
-	<NewPostSection/>
 	<PostListSection/>
+	<NewPostSection/>
 </>);
 
 const UserProfile = () => {

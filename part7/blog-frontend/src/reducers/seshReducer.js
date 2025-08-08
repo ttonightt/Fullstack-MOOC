@@ -23,7 +23,7 @@ export const checkUser = createAsyncThunk(
 	"session/checkStatus",
 	async (data, thunk) => {
 
-		const user = JSON.parse(window.localStorage.getItem("user"));
+		const user = JSON.parse(window.localStorage.getItem("session"))?.user;
 
 		if (!user)
 			return thunk.rejectWithValue({
@@ -76,7 +76,7 @@ const userSlice = createSlice({
 	}
 });
 
-const {setUser} = userSlice.actions;
+const {setSessionUser} = userSlice.actions;
 export default userSlice.reducer;
 
 
@@ -84,7 +84,7 @@ export const logoutUser = () => {
 
 	return dispatch => {
 
-		window.localStorage.removeItem("user");
+		window.localStorage.removeItem("session");
 
 		dispatch(setSessionUser(null));
 	};
