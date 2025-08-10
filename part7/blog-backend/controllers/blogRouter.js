@@ -80,7 +80,7 @@ blogRouter.post("/:id/like", middleware.userExtractor, async (req, res, next) =>
 	const post = await Post.findById(id);
 
 	if (!post)
-		return res.status(404).end();
+		return res.status(204).end();
 
 	const userId = req.user.id;
 
@@ -96,19 +96,17 @@ blogRouter.post("/:id/like", middleware.userExtractor, async (req, res, next) =>
 		return res.json(post_);
 	}
 
-	return res.status(409).json({
-		error: "The post was already liked!"
-	});
+	return res.json(post); // Some http code have to be added
 });
 
 
-blogRouter.post("/:id/dislike", middleware.userExtractor, async (req, res, next) => {
+blogRouter.delete("/:id/like", middleware.userExtractor, async (req, res, next) => {
 
 	const id = req.params.id;
 	const post = await Post.findById(id);
 
 	if (!post)
-		return res.status(404).end();
+		return res.status(204).end();
 
 	const userId = req.user.id;
 
@@ -124,9 +122,7 @@ blogRouter.post("/:id/dislike", middleware.userExtractor, async (req, res, next)
 		return res.json(post_);
 	}
 
-	return res.status(509).json({
-		error: "You haven't liked this post yet"
-	});
+	return res.status(204).end();
 });
 
 
@@ -148,6 +144,33 @@ blogRouter.post("/:id/comment", middleware.userExtractor, async (req, res, next)
 	await post_.populate("likes", {username: true, name: true});
 
 	return res.json(post_);
+});
+
+blogRouter.delete("/:id/reset-comments", middleware.userExtractor, async (req, res, next) => {
+
+	const id = req.params.id;
+	const post = await Post.findById(id);
+
+	if (!post)
+		return res.status(204).end();
+
+	const userId = req.user.id;
+
+	if (post.user.id === userId) {
+
+		post.comments = [];
+
+		const post_ = await post.save();
+
+		await post_.populate("user", {username: true, name: true});
+		await post_.populate("likes", {username: true, name: true});
+
+		return res.json(post_);
+	}
+
+	return res.status(401).json({
+		error: "The post isn't yours!"
+	});
 });
 
 
@@ -178,7 +201,7 @@ blogRouter.delete("/:id", middleware.userExtractor, async (req, res, next) => {
 
 blogRouter.put("/:id", middleware.userExtractor, async (req, res, next) => {
 
-	const {title, author, content, comments} = req.body;
+	const {title, author, content} = req.body;
 	const id = req.params.id;
 
 	const post = await Post.findById(id);
@@ -193,12 +216,12 @@ blogRouter.put("/:id", middleware.userExtractor, async (req, res, next) => {
 		return res.status(401).json({error: "You cannot modify another's post"});
 	}
 
-	mergeObjects(post, {title, author, content, comments});
+	mergeObjects(post, {title, author, content});
 
 	const post_ = await post.save();
 
-	post_.populate("user", {username: true, name: true});
-	post_.populate("likes", {username: true, name: true});
+	await post_.populate("user", {username: true, name: true});
+	await post_.populate("likes", {username: true, name: true});
 
 	return res.json(post_);
 });
