@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-const blogRouter = require("express").Router();
+const postRouter = require("express").Router();
 const {SECRET} = require("../utils/config");
 const middleware = require("../utils/middleware");
 
@@ -10,7 +10,7 @@ const User = require("../models/user");
 const mergeObjects = require("../utils/mergeObjects");
 
 
-blogRouter.get("/", async (req, res) => {
+postRouter.get("/", async (req, res) => {
 
 	const posts = await Post
 		.find({})
@@ -21,7 +21,7 @@ blogRouter.get("/", async (req, res) => {
 });
 
 
-blogRouter.get("/:id", async (req, res) => {
+postRouter.get("/:id", async (req, res) => {
 
 	const id = req.params.id;
 
@@ -34,30 +34,25 @@ blogRouter.get("/:id", async (req, res) => {
 });
 
 
-blogRouter.post("/", middleware.userExtractor, async (req, res, next) => {
+postRouter.post("/", middleware.userExtractor, async (req, res, next) => {
 
 	const {title, author, content} = req.body;
 
-	const decodedToken = jwt.verify(req.token, SECRET);
+	const userId = req.user.id;
 
-	if (!decodedToken.id) {
+	const user = await User.findById(userId);
 
-		return res.status(401).json({error: "invalid token"});
-	}
-
-	const user = await User.findById(decodedToken.id);
-
-	if (!user) {
-
-		res.status(400).json({error: "User is missing!"});
-	}
+	if (!user) 
+		res.status(401).json({
+			error: "User is missing!"
+		});
 
 	const post = new Post({
 		title,
 		author,
 		content,
 		likes: [],
-		user: user.id,
+		user: userId,
 		comments: []
 	});
 
@@ -66,7 +61,7 @@ blogRouter.post("/", middleware.userExtractor, async (req, res, next) => {
 	await post_.populate("user", {username: true, name: true})
 	await post_.populate("likes", {username: true, name: true});
 
-	user.posts = user.posts.concat(post_.id);
+	user.posts.push(post_.id);
 
 	await user.save();
 
@@ -74,7 +69,7 @@ blogRouter.post("/", middleware.userExtractor, async (req, res, next) => {
 });
 
 
-blogRouter.post("/:id/like", middleware.userExtractor, async (req, res, next) => {
+postRouter.post("/:id/like", middleware.userExtractor, async (req, res, next) => {
 
 	const id = req.params.id;
 	const post = await Post.findById(id);
@@ -100,7 +95,7 @@ blogRouter.post("/:id/like", middleware.userExtractor, async (req, res, next) =>
 });
 
 
-blogRouter.delete("/:id/like", middleware.userExtractor, async (req, res, next) => {
+postRouter.delete("/:id/like", middleware.userExtractor, async (req, res, next) => {
 
 	const id = req.params.id;
 	const post = await Post.findById(id);
@@ -126,12 +121,12 @@ blogRouter.delete("/:id/like", middleware.userExtractor, async (req, res, next) 
 });
 
 
-blogRouter.post("/:id/comment", middleware.userExtractor, async (req, res, next) => {
-
+postRouter.post("/:id/comments", middleware.userExtractor, async (req, res, next) => {
+	// Though comment is stored anonymously, userExtractor checks whether it's an existing user comments
 	const id = req.params.id;
 	const post = await Post.findById(id);
 
-	const comment = req.body.toString();
+	const { comment } = req.body;
 
 	if (!post)
 		return res.status(404).end();
@@ -146,7 +141,7 @@ blogRouter.post("/:id/comment", middleware.userExtractor, async (req, res, next)
 	return res.json(post_);
 });
 
-blogRouter.delete("/:id/reset-comments", middleware.userExtractor, async (req, res, next) => {
+postRouter.delete("/:id/comments", middleware.userExtractor, async (req, res, next) => {
 
 	const id = req.params.id;
 	const post = await Post.findById(id);
@@ -156,7 +151,7 @@ blogRouter.delete("/:id/reset-comments", middleware.userExtractor, async (req, r
 
 	const userId = req.user.id;
 
-	if (post.user.id === userId) {
+	if (post.user.toString() === userId) {
 
 		post.comments = [];
 
@@ -174,7 +169,7 @@ blogRouter.delete("/:id/reset-comments", middleware.userExtractor, async (req, r
 });
 
 
-blogRouter.delete("/:id", middleware.userExtractor, async (req, res, next) => {
+postRouter.delete("/:id", middleware.userExtractor, async (req, res, next) => {
 
 	const id = req.params.id;
 	const post = await Post.findById(id);
@@ -199,7 +194,7 @@ blogRouter.delete("/:id", middleware.userExtractor, async (req, res, next) => {
 });
 
 
-blogRouter.put("/:id", middleware.userExtractor, async (req, res, next) => {
+postRouter.put("/:id", middleware.userExtractor, async (req, res, next) => {
 
 	const {title, author, content} = req.body;
 	const id = req.params.id;
@@ -227,4 +222,4 @@ blogRouter.put("/:id", middleware.userExtractor, async (req, res, next) => {
 });
 
 
-module.exports = blogRouter;
+module.exports = postRouter;

@@ -25,9 +25,9 @@ userRouter.post("/", async (req, res, next) => {
 
 	const {username, name, password} = req.body;
 
-	if (username.length < 3 && username.length < 3) {
+	if (!username || username?.length < 4 || !password || password.length < 4) {
 
-		return res.status(400).json({error: "Username and password must be at least 3 characters long!"});
+		return res.status(400).json({error: "Username and password must be at least 4 characters long!"});
 	}
 
 	const passwordHash = await bcrypt.hash(password, 10);

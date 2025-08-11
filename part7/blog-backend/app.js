@@ -2,7 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 
 const loginRouter = require("./controllers/loginRouter");
-const blogRouter = require("./controllers/blogRouter");
+const postRouter = require("./controllers/postRouter");
 const userRouter = require("./controllers/userRouter");
 
 const logger = require("./utils/logger");
@@ -17,7 +17,7 @@ const connectToDB = async () => {
 
 	let uri;
 
-	if (config.MONGODB_URI) {
+	if (config.NODE_ENV === "test") {
 
 		logger.info("DB is running on local Mongo Server");
 
@@ -50,7 +50,7 @@ app.use(middleware.requestLogger);
 app.use(middleware.tokenExtractor);
 
 app.use("/api/login", loginRouter);
-app.use("/api/posts", blogRouter);
+app.use("/api/posts", postRouter);
 app.use("/api/users", userRouter);
 
 app.use(middleware.unknownEndpoint);

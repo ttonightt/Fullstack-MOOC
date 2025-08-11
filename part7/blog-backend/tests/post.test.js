@@ -50,7 +50,7 @@ const session = {
 			.send(initUsers[i]);
 
 		this.tokens[i] = res.body.token;
-		this.users[i] = {username: res.body.username};
+		this.users[i] = res.body;
 	},
 	async logout (i) {
 
@@ -90,10 +90,14 @@ beforeEach(async () => {
 
 	for (const post of initPosts) {
 
-		await api
-			.post("/api/posts")
-			.send(post)
-			.set("Authorization", `Bearer ${session.tokens[0]}`);
+		const post_ = {
+			...post,
+			likes: [],
+			comments: [],
+			user: session.users[0].id
+		};
+
+		await new Post(post_).save();
 	}
 
 	initPostsPended = (await api.get("/api/posts")).body;
@@ -113,57 +117,63 @@ test("Posts are returned in right number and json format", async () => {
 	assert.strictEqual(json.body.length, 2);
 });
 
-//test("Saving new post (User 0)", async () => {
+test("Attempt to save new post by unauthorized user fails", async () => {
 
-//	const post = initPosts[0];
+	const post = {
+		title: "New Post",
+		author: "ttonightt",
+		content: "content"
+	};
 
-//	const post_ = await api
-//		.post("/api/posts")
-//		.send(post)
-//		.set("Authorization", `Bearer ${session.tokens[0]}`)
-//		.expect(201)
-//		.expect("Content-Type", /application\/json/);
+	await api
+		.post("/api/posts")
+		.send(post)
+		.expect(401);
+});
 
-//	const {id, title, author, content, likes, comments, user} = post_.body;
+test("Attempt to save new post in wrong format fails", async () => {
 
-//	assert.strictEqual(mongoose.isObjectIdOrHexString(id), true);
-//	assert.strictEqual(title, post.title);
-//	assert.strictEqual(author, post.author);
-//	assert.strictEqual(content, post.content);
-//	assert.strictEqual(likes.length, 0);
-//	assert.strictEqual(comments.length, 0);
-//	assert.strictEqual(user.username, session.user.username);
+	await api
+		.post("/api/posts")
+		.send({})
+		.set("Authorization", `Bearer ${session.tokens[1]}`)
+		.expect(400);
+});
 
-//	const json = await api.get("/api/posts");
+test("User can save a new post AND it will be pushed into the users entry as well", async () => {
 
-//	assert.strictEqual(json.body.length, 1);
-//});
+	const post = {
+		title: "New Post",
+		author: "ttonightt",
+		content: "content"
+	};
 
-//test("Saving new post (User 1)", async () => {
+	const res = await api
+		.post("/api/posts")
+		.send(post)
+		.set("Authorization", `Bearer ${session.tokens[1]}`)
+		.expect(201)
+		.expect("Content-Type", /application\/json/);
 
-//	const post = initPosts[0];
+	const {id, title, author, content, likes, comments, user} = res.body;
 
-//	const post_ = await api
-//		.post("/api/posts")
-//		.send(post)
-//		.set("Authorization", `Bearer ${session.token}`)
-//		.expect(201)
-//		.expect("Content-Type", /application\/json/);
+	assert.strictEqual(mongoose.isObjectIdOrHexString(id), true);
+	assert.strictEqual(title, post.title);
+	assert.strictEqual(author, post.author);
+	assert.strictEqual(content, post.content);
+	assert.strictEqual(likes.length, 0);
+	assert.strictEqual(comments.length, 0);
+	assert.strictEqual(user.username, session.users[1].username);
 
-//	const {id, title, author, content, likes, comments, user} = post_.body;
+	const posts = (await api.get("/api/posts")).body;
 
-//	assert.strictEqual(mongoose.isObjectIdOrHexString(id), true);
-//	assert.strictEqual(title, post.title);
-//	assert.strictEqual(author, post.author);
-//	assert.strictEqual(content, post.content);
-//	assert.strictEqual(likes.length, 0);
-//	assert.strictEqual(comments.length, 0);
-//	assert.strictEqual(user.username, session.user.username);
+	assert.strictEqual(posts.length, 3);
 
-//	const json = await api.get("/api/posts");
+	const user_ = await User.findById(user.id);
 
-//	assert.strictEqual(json.body.length, 2);
-//});
+	assert.strictEqual(user_.posts.length, 1);
+	assert.strictEqual(user_.posts[0].toString(), id);
+});
 
 test("Get single post", async () => {
 
@@ -176,8 +186,9 @@ test("Get single post", async () => {
 		.expect(200)
 		.expect("Content-Type", /application\/json/);
 
-	const { title, author, content, likes, comments } = res.body;
+	const { id, title, author, content, likes, comments } = res.body;
 
+	assert.strictEqual(mongoose.isObjectIdOrHexString(id), true);
 	assert.strictEqual(title, post.title);
 	assert.strictEqual(author, post.author);
 	assert.strictEqual(content, post.content);
@@ -312,6 +323,56 @@ test("If user dislikes the post, which they've disliked already, request ends wi
 		.delete(`/api/posts/${_id}/like`)
 		.set("Authorization", `Bearer ${session.tokens[0]}`)
 		.expect(204);
+});
+
+test("Attempt to comment a post by unauthorized user fails with 401", async () => {
+
+	const _id = initPostsPended[0].id;
+
+	await api
+		.post(`/api/posts/${_id}/comments`)
+		.send({ comment: "Hello World!" })
+		.expect(401);
+});
+
+test("Authorized user can post a comment", async () => {
+
+	const _id = initPostsPended[0].id;
+
+	const comment = "Hello World";
+
+	const res = await api
+		.post(`/api/posts/${_id}/comments`)
+		.send({ comment })
+		.set("Authorization", `Bearer ${session.tokens[1]}`);
+
+	const { comments } = res.body;
+
+	assert.strictEqual(comments.length, 1);
+	assert.deepStrictEqual(comments[0], comment);
+});
+
+test("Attempt to reset another users post fails", async () => {
+
+	const _id = initPostsPended[0].id;
+
+	await api
+		.delete(`/api/posts/${_id}/comments`)
+		.expect(401);
+});
+
+test("User can reset comments of their post", async () => {
+
+	const _id = initPostsPended[0].id;
+
+	const res = await api
+		.delete(`/api/posts/${_id}/comments`)
+		.set("Authorization", `Bearer ${session.tokens[0]}`)
+		.expect(200);
+	
+	const { comments } = res.body;
+
+	assert.strictEqual(comments.length, 0);
 });
 
 
