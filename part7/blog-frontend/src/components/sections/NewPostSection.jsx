@@ -4,6 +4,7 @@ import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
 import { createPost } from "../../reducers/postReducer";
+import { useEffect } from "react";
 
 const NewPostSection = () => {
 
@@ -14,14 +15,21 @@ const NewPostSection = () => {
 	const [author, setAuthor] = useState(seshUser?.name);
 	const [content, setContent] = useState("");
 
+	const [expanded, setExpanded] = useState(false);
+
 	const handlePublish = () => {
 
 		dispatch(createPost({ post: { title, author, content }, token: seshUser.token }));
+
+		setTitle("");
+		setAuthor("");
+		setContent("");
+		setExpanded(false);
 	};
 
 	if (seshUser)
 		return (
-			<Accordion>
+			<Accordion expanded={expanded} onChange={() => setExpanded(!expanded)}>
 				<AccordionSummary expandIcon={<AddRoundedIcon />}>
 					New Post
 				</AccordionSummary>

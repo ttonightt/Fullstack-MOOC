@@ -1,35 +1,8 @@
-import { styled } from "styled-components"
+import { Alert } from "@mui/material";
 
-
-const DefaultNotification = styled.div`
-	background-color: #e6e6e6;
-	border-radius: 0.3em;
-	font-family: monospace;
-	font-size: 1rem;
-	font-weight: 500;
-	padding: 1em;
-	color: black;
-`
-
-const InfoNotification = styled.div`
-	background-color: #caf3dc;
-	border-radius: 0.3em;
-	font-family: monospace;
-	font-size: 1rem;
-	font-weight: 500;
-	padding: 1em;
-	color: green;
-`
-
-const ErrorNotification = styled.div`
-	background-color: #f3cada;
-	border-radius: 0.3em;
-	font-family: monospace;
-	font-size: 1rem;
-	font-weight: 500;
-	padding: 1em;
-	color: red;
-`
+const style = {
+	marginBottom: "1vw"
+};
 
 const Notification = ({notificationData}) => {
 
@@ -38,21 +11,15 @@ const Notification = ({notificationData}) => {
 	switch (type) {
 		case "info":
 			return (
-				<InfoNotification>
-					{message}
-				</InfoNotification>
+				<Alert severity="success" style={style}>{message}</Alert>
 			);
 		case "error":
 			return (
-				<ErrorNotification>
-					{message}
-				</ErrorNotification>
+				<Alert severity="error" style={style}>{message}</Alert>
 			);
 		default:
 			return (
-				<DefaultNotification>
-					{message}
-				</DefaultNotification>
+				<Alert style={style}>{message}</Alert>
 			);
 	}
 };

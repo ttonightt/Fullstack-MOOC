@@ -1,15 +1,18 @@
 import { useDispatch, useSelector } from "react-redux";
-import { fetchPosts } from "../../reducers/postReducer";
+import { commentPost, dislikePost, fetchPosts, likePost } from "../../reducers/postReducer";
 import { useEffect } from "react";
-import { Avatar, Container, AvatarGroup, Button } from "@mui/material";
+import { Avatar, Container, AvatarGroup, Button, TextField, Grid } from "@mui/material";
 import { Link } from "react-router-dom";
 
 import PostContextMenu from "../PostContextMenu";
+import { useState } from "react";
 
 
 const SinglePostSection = ({ id }) => {
 
 	const seshUser = useSelector(state => state.session)?.user;
+
+	const [comment, setComment] = useState();
 
 	const post = useSelector(state => state.posts.find(item => item.id === id));
 	const dispatch = useDispatch();
@@ -20,10 +23,47 @@ const SinglePostSection = ({ id }) => {
 			dispatch(fetchPosts());
 	}, []);
 
-	const handleLike = () => {};
+	const handleComment = () => {
 
-	const likable = seshUser && post;
-	const liked = likable ? post.likes.some(item => item.id === seshUser.id) : false;
+		dispatch(commentPost({ id, token: seshUser.token, comment }))
+			.unwrap()
+			.catch(e => {
+
+				console.error(e);
+
+				if (e.data.error.includes("token has expired")) {
+
+					alert("Your session seems to be expired, please log in again");
+					handleLogout();
+				}
+			});
+
+		setComment("");
+	};
+
+	const interactive = seshUser && post;
+	const liked = interactive ? post.likes.some(item => item.id === seshUser.id) : false;
+
+	const handleLike = () => {
+		(
+			liked
+			?
+			dispatch(dislikePost({id, token: seshUser.token}))
+			:
+			dispatch(likePost({id, token: seshUser.token}))
+		)
+			.unwrap()
+			.catch(e => {
+
+				console.error(e);
+
+				if (e.data.error.includes("token has expired")) {
+
+					alert("Your session seems to be expired, please log in again");
+					handleLogout();
+				}
+			});
+	};
 
 	if (post) {
 
@@ -41,12 +81,33 @@ const SinglePostSection = ({ id }) => {
 							)
 						}
 					</AvatarGroup>
-					<Button onClick={handleLike} data-testid="like-button">{liked ? "🩶" : "❤️"}</Button>
+					<Button onClick={handleLike} data-testid="like-button" disabled={!interactive}>{liked ? "🩶" : "❤️"}</Button>
 					<PostContextMenu id={id} />
 				</h4>
 				<hr />
 				<p>{post.content}</p>
 				<hr />
+				<Grid container>
+					<Grid size="grow">
+						<TextField
+							value={comment}
+							onChange={e => setComment(e.target.value)}
+							fullWidth
+							multiline
+							variant="standard"
+						/>
+					</Grid>
+					<Grid size="auto">
+						<Button onClick={handleComment}>Share</Button>
+					</Grid>
+				</Grid>
+				{
+					post.comments.length === 0
+					?
+					"No comments"
+					:
+					post.comments.map((item, i) => <p key={i}>{item}</p>)
+				}
 			</Container>
 		);
 	} else {

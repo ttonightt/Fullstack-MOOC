@@ -3,6 +3,10 @@ import { loginUser } from "../../reducers/seshReducer";
 import { useDispatch } from "react-redux";
 import { useNotify } from "../../hooks";
 import { useNavigate, useLocation } from "react-router-dom";
+import { Button, FormControl, IconButton, InputAdornment, InputLabel, OutlinedInput, TextField } from "@mui/material";
+
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 const LoginSection = () => {
 
@@ -21,37 +25,44 @@ const LoginSection = () => {
 			.then(() => {
 
 				notify.log("You logged in successfully!");
+
+				navigate("/posts");
 			})
 			.catch(e => {
 
 				if (e.status === 401)
 					notify.error("Wrong credentials!");
 			});
-
-		navigate("/posts");
 	};
 
 	return (<>
-		<input
-			type="text"
+		<TextField
 			value={username}
 			onChange={e => setUsername(e.target.value)}
-			placeholder="username"
+			label="Username"
+			variant="standard"
 		/>
-		<input
-			type={passwordVisibility ? "text" : "password"}
-			value={password}
-			onChange={e => setPassword(e.target.value)}
-			placeholder="password"
-		/>
+		<FormControl sx={{ m: 1, width: '25ch' }} variant="outlined">
+			<InputLabel>Password</InputLabel>
+			<OutlinedInput
+				type={passwordVisibility ? "text" : "password"}
+				value={password}
+				onChange={e => setPassword(e.target.value)}
+				endAdornment={
+					<InputAdornment position="end">
+						<IconButton
+							onClick={() => setPasswordVisibility(!passwordVisibility)}
+							edge="end"
+						>
+							{passwordVisibility ? <VisibilityOff /> : <Visibility />}
+						</IconButton>
+					</InputAdornment>
+				}
+				label="Password"
+			/>
+		</FormControl>
 		<br/>
-		<button onClick={() => handleSubmit(username, password)}>Login</button>
-		<input
-			type="checkbox"
-			id="passwordVisibility"
-			onChange={e => setPasswordVisibility(e.target.checked)}
-		/>
-		<label htmlFor="passwordVisibility">show password</label>
+		<Button onClick={() => handleSubmit(username, password)}>Login</Button>
 	</>);
 };
 

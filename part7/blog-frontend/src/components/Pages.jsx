@@ -8,35 +8,26 @@ import SinglePostSection from "./sections/SinglePostSection";
 import NewPostSection from "./sections/NewPostSection";
 
 
-const UserList = () => <UserListSection/>;
+export const UserList = () => <UserListSection/>;
 
-const PostList = () => (<>
+export const PostList = () => (<>
 	
 	<PostListSection/>
 	<NewPostSection/>
 </>);
 
-const UserProfile = () => {
+export const UserProfile = () => {
 
 	const { id } = useParams();
 
 	return <SingleUserSection id={id} />;
 };
 
-const Post = () => {
+export const Post = () => {
 
 	const { id } = useParams();
 
 	return <SinglePostSection id={id} />
 };
 
-const Login = () => <LoginSection/>;
-
-export default {
-
-	UserList,
-	PostList,
-	UserProfile,
-	Post,
-	Login
-};
+export const Login = () => <LoginSection/>;

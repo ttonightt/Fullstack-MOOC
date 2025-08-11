@@ -2,6 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 import { TableRow, TableCell, Button, Grid, Paper, AvatarGroup, Avatar } from '@mui/material';
+import { dislikePost, likePost } from "../reducers/postReducer";
 
 
 export const Post = ({ post }) => {
@@ -10,41 +11,17 @@ export const Post = ({ post }) => {
 	const dispatch = useDispatch();
 
 	const { id } = post;
-
-	const handleDelete = () => {
-
-		if (!confirm(`Are you sure deleting "${post.title}" by ${post.author}?`)) return;
-
-		dispatch(removePost({id, token: user.token}))
-			.unwrap()
-			.then(() => {
-
-				notify.log("Post was successfully deleted!");
-			})
-			.catch(e => {
-
-				console.error(e);
-
-				if (e.data.error.includes("invalid token")) {
-
-					if (confirm("Invalid token. Would you like to start new user session?"))
-						handleLogout();
-
-				} else if (e.data.error.includes("token has expired")) {
-
-					alert("Your session seems to be expired, please log in again");
-					handleLogout();
-				}
-			});
-	};
+	
+	const interactive = !!seshUser;
+	const liked = interactive ? post.likes.some(item => item.id === seshUser.id) : false;
 
 	const handleLike = () => {
 		(
 			liked
 			?
-			dispatch(dislikePost({id, token: user.token}))
+			dispatch(dislikePost({id, token: seshUser.token}))
 			:
-			dispatch(likePost({id, token: user.token}))
+			dispatch(likePost({id, token: seshUser.token}))
 		)
 			.unwrap()
 			.catch(e => {
@@ -55,13 +32,9 @@ export const Post = ({ post }) => {
 
 					alert("Your session seems to be expired, please log in again");
 					handleLogout();
-
 				}
 			});
 	};
-	
-	const likable = !!seshUser;
-	const liked = likable ? post.likes.some(item => item.id === seshUser.id) : false;
 
 	return (
 		<Grid container size={12}>
@@ -87,7 +60,7 @@ export const Post = ({ post }) => {
 				</Paper>
 			</Grid>
 			<Grid size="auto">
-				<Button onClick={handleLike} data-testid="like-button">{liked ? "🩶" : "❤️"}</Button>
+				<Button onClick={handleLike} data-testid="like-button" disabled={!interactive}>{liked ? "🩶" : "❤️"}</Button>
 			</Grid>
 			{/*<TableRow>
 				<TableCell colSpan={4}>

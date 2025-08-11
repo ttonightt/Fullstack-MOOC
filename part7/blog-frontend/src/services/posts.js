@@ -1,19 +1,19 @@
 import axios from "axios";
 const baseUrl = "/api/posts";
 
-const getAll = async () => {
+export const getAll = async () => {
 
 	const res = await axios.get(baseUrl);
 	return res.data;
 };
 
-const get = async id => {
+export const get = async id => {
 
 	const res = await axios.get(`${baseUrl}/${id}`);
 	return res.data;
 };
 
-const create = async ({title, author, content}, token) => {
+export const create = async ({title, author, content}, token) => {
 
 	const config = {
 		headers: {
@@ -26,7 +26,7 @@ const create = async ({title, author, content}, token) => {
 	return res.data;
 };
 
-const modify = async (id, {title, author, url, likes}, token) => {
+export const modify = async (id, {title, author, url, likes}, token) => {
 
 	const config = {
 		headers: {
@@ -39,7 +39,7 @@ const modify = async (id, {title, author, url, likes}, token) => {
 	return res.data;
 };
 
-const remove = async (id, token) => {
+export const remove = async (id, token) => {
 
 	const config = {
 		headers: {
@@ -52,7 +52,7 @@ const remove = async (id, token) => {
 	return res.data;
 };
 
-const like = async (id, token) => {
+export const like = async (id, token) => {
 
 	const config = {
 		headers: {
@@ -65,7 +65,7 @@ const like = async (id, token) => {
 	return res.data;
 };
 
-const dislike = async (id, token) => {
+export const dislike = async (id, token) => {
 
 	const config = {
 		headers: {
@@ -73,17 +73,33 @@ const dislike = async (id, token) => {
 		}
 	};
 
-	const res = await axios.post(`${baseUrl}/${id}/dislike`, {}, config);
+	const res = await axios.delete(`${baseUrl}/${id}/like`, config);
 
 	return res.data;
 };
 
-export default {
-	getAll,
-	get,
-	create,
-	remove,
-	modify,
-	like,
-	dislike
+export const comment = async (id, { comment }, token) => {
+
+	const config = {
+		headers: {
+			Authorization: `Bearer ${token}`
+		}
+	};
+
+	const res = await axios.post(`${baseUrl}/${id}/comments`, { comment }, config);
+
+	return res.data;
+};
+
+export const resetComments = async (id, token) => {
+
+	const config = {
+		headers: {
+			Authorization: `Bearer ${token}`
+		}
+	};
+
+	const res = await axios.delete(`${baseUrl}/${id}/comments`, config);
+
+	return res.data;
 };

@@ -6,9 +6,9 @@ import { Route, Routes, Link, useNavigate, useLocation } from "react-router-dom"
 import { logoutUser, checkUser } from "./reducers/seshReducer";
 import { fetchPosts, createPost, likePost, dislikePost, removePost } from "./reducers/postReducer";
 
-import { Avatar, Box, Button, Container } from "@mui/material";
+import { Avatar, Box, Button, Chip, Container, Paper } from "@mui/material";
 
-import Pages from "./components/Pages";
+import * as Pages from "./components/Pages";
 
 
 const App = () => {
@@ -55,21 +55,25 @@ const App = () => {
 	return (
 		<Box color="primary">
 			<header>
-				<Link to="/posts">Posts</Link>
-				<Link to="/users">Users</Link>
-				{
-					seshUser
-					?
-					(<>
-						<Avatar alt={seshUser.username} src={`/public/avatars/${seshUser.id}.png`} />
-						<h5>{seshUser.username}</h5>
-						<Button onClick={handleLogout}>Log Out</Button>
-					</>)
-					:
-					<Link to="/login">
-						<Button>Log In</Button>
+				<Paper>
+					<Link to="/posts">
+						<Chip label="Posts" variant="outlined" />
 					</Link>
-				}
+					<Link to="/users">Users</Link>
+					{
+						seshUser
+						?
+						(<>
+							<Avatar alt={seshUser.username} src={`/public/avatars/${seshUser.id}.png`} />
+							<h5>{seshUser.username}</h5>
+							<Button onClick={handleLogout}>Log Out</Button>
+						</>)
+						:
+						<Link to="/login">
+							<Button>Log In</Button>
+						</Link>
+					}
+				</Paper>
 			</header>
 
 			<Container maxWidth="md">

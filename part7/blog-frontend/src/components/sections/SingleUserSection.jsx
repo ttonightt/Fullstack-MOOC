@@ -1,10 +1,9 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserList } from "../../reducers/userReducer";
-import { Avatar, Box, Button, Container, List, ListItem, Paper } from "@mui/material";
+import { Avatar, Box, Button, Container, List, ListItem, Paper, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 
-import ArrowBackIosRoundedIcon from "@mui/icons-material/ArrowBackIosRounded";
 
 const SingleUserSection = ({ id }) => {
 
@@ -21,15 +20,16 @@ const SingleUserSection = ({ id }) => {
 
 		return (
 			<Container maxWidth="sm">
-				<h2>{user.username}</h2>
 				<Avatar sx={{ width: 100, height: 100 }} alt={user.username} src={`/public/avatars/${user.id}.png`} />
+				<h2 style={{display: "inline"}}>{user.name}</h2>  <i>@{user.username}</i>
+
 				<hr />
-				<h2>{user.posts.length} Posts</h2>
+				<h2>{user.posts.length} {user.posts.length === 1 ? "Post" : "Posts"}</h2>
 				{user.posts.map(post => 
 
 					<Link to={`/posts/${post.id}`} key={post.id}>
 						<Paper>
-							{post.title} <i>— {post.author}</i>
+							<h4>{post.title}</h4>
 						</Paper>
 					</Link>
 				)}
