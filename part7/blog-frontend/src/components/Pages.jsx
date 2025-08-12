@@ -1,4 +1,5 @@
 import { useParams } from "react-router-dom";
+import { Box } from "@mui/joy";
 
 import LoginSection from "./sections/LoginSection";
 import UserListSection from "./sections/UserListSection";
@@ -10,11 +11,12 @@ import NewPostSection from "./sections/NewPostSection";
 
 export const UserList = () => <UserListSection/>;
 
-export const PostList = () => (<>
-	
-	<PostListSection/>
-	<NewPostSection/>
-</>);
+export const PostList = () => (
+	<Box sx={{ width: "60vw" }}>
+		<PostListSection/>
+		<NewPostSection/>
+	</Box>
+);
 
 export const UserProfile = () => {
 

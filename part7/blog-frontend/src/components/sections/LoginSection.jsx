@@ -3,10 +3,7 @@ import { loginUser } from "../../reducers/seshReducer";
 import { useDispatch } from "react-redux";
 import { useNotify } from "../../hooks";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Button, FormControl, IconButton, InputAdornment, InputLabel, OutlinedInput, TextField } from "@mui/material";
-
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { Box, Button, Card, Input } from "@mui/joy";
 
 const LoginSection = () => {
 
@@ -36,33 +33,18 @@ const LoginSection = () => {
 	};
 
 	return (<>
-		<TextField
-			value={username}
-			onChange={e => setUsername(e.target.value)}
-			label="Username"
-			variant="standard"
-		/>
-		<FormControl sx={{ m: 1, width: '25ch' }} variant="outlined">
-			<InputLabel>Password</InputLabel>
-			<OutlinedInput
+		<Card sx={{ width: "300px" }}>
+			<Input variant="soft" placeholder="username" value={username} onChange={e => setUsername(e.target.value)}/>
+			<Input variant="soft" placeholder="password" value={password} onChange={e => setPassword(e.target.value)}
 				type={passwordVisibility ? "text" : "password"}
-				value={password}
-				onChange={e => setPassword(e.target.value)}
-				endAdornment={
-					<InputAdornment position="end">
-						<IconButton
-							onClick={() => setPasswordVisibility(!passwordVisibility)}
-							edge="end"
-						>
-							{passwordVisibility ? <VisibilityOff /> : <Visibility />}
-						</IconButton>
-					</InputAdornment>
+				endDecorator={
+					<Button onClick={() => setPasswordVisibility(!passwordVisibility)}>
+						{passwordVisibility ? "Hide" : "Show"}
+					</Button>
 				}
-				label="Password"
 			/>
-		</FormControl>
-		<br/>
-		<Button onClick={() => handleSubmit(username, password)}>Login</Button>
+			<Button size="sm" variant="soft" onClick={() => handleSubmit(username, password)}>Login</Button>
+		</Card>
 	</>);
 };
 

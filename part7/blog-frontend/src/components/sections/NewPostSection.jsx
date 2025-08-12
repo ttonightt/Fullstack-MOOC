@@ -1,6 +1,7 @@
-import { Accordion, AccordionDetails, AccordionSummary, Button, Grid, TextField } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, AccordionGroup, Button, Input, Typography } from "@mui/joy";
+import { accordionSummaryClasses } from "@mui/joy/AccordionSummary";
+import { accordionDetailsClasses } from "@mui/joy/AccordionDetails";
 
-import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
 import { createPost } from "../../reducers/postReducer";
@@ -29,46 +30,27 @@ const NewPostSection = () => {
 
 	if (seshUser)
 		return (
-			<Accordion expanded={expanded} onChange={() => setExpanded(!expanded)}>
-				<AccordionSummary expandIcon={<AddRoundedIcon />}>
-					New Post
-				</AccordionSummary>
-				<AccordionDetails>
-					<Grid container>
-						<Grid size="grow">
-							<TextField
-								value={title}
-								onChange={e => setTitle(e.target.value)}
-								fullWidth
-								label="Title"
-								multiline
-								variant="standard"
-							/>
-						</Grid>
-						<Grid size={3}>
-							<TextField
-								value={author}
-								onChange={e => setAuthor(e.target.value)}
-								fullWidth
-								label="Author"
-								variant="standard"
-							/>
-						</Grid>
-						<Grid size="auto">
-							<Button onClick={handlePublish}>Publish</Button>
-						</Grid>
-						<Grid size={12}>
-							<TextField
-								value={content}
-								onChange={e => setContent(e.target.value)}
-								fullWidth
-								multiline
-								variant="standard"
-							/>
-						</Grid>
-					</Grid>
-				</AccordionDetails>
-			</Accordion>
+			<AccordionGroup
+				variant="soft"
+				size="lg"
+				sx={{
+					borderRadius: "md",
+					[`& .${accordionSummaryClasses.button}:hover`]: { bgcolor: "transparent" },
+					[`& .${accordionSummaryClasses.root}`]: { px: "1em" },
+					[`& .${accordionDetailsClasses.content}`]: { px: "1em" }
+				}}
+			>
+				<Accordion
+					expanded={expanded} onChange={() => setExpanded(!expanded)}
+				>
+					<AccordionSummary>
+						<Typography color="neutral" level="h4" fontWeight="xl">New post...</Typography>
+					</AccordionSummary>
+					<AccordionDetails>
+						...
+					</AccordionDetails>
+				</Accordion>
+			</AccordionGroup>
 		);
 };
 

@@ -1,7 +1,11 @@
-import { Alert } from "@mui/material";
+import { Alert } from "@mui/joy";
+
+import ReportIcon from "@mui/icons-material/Report";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import InfoIcon from "@mui/icons-material/Info";
 
 const style = {
-	marginBottom: "1vw"
+	marginTop: "1em"
 };
 
 const Notification = ({notificationData}) => {
@@ -9,17 +13,17 @@ const Notification = ({notificationData}) => {
 	const {message, type} = notificationData;
 
 	switch (type) {
-		case "info":
+		case "success":
 			return (
-				<Alert severity="success" style={style}>{message}</Alert>
+				<Alert color="success" sx={style} startDecorator={ <CheckCircleIcon /> }>{message}</Alert>
 			);
 		case "error":
 			return (
-				<Alert severity="error" style={style}>{message}</Alert>
+				<Alert color="danger" sx={style} startDecorator={ <ReportIcon /> }>{message}</Alert>
 			);
 		default:
 			return (
-				<Alert style={style}>{message}</Alert>
+				<Alert color="neutral" sx={style} startDecorator={ <InfoIcon /> }>{message}</Alert>
 			);
 	}
 };

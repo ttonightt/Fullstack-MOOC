@@ -9,7 +9,7 @@ export const useNotify = () => {
 		log (message) {
 
 			console.log(message);
-			dispatch(triggerNotification(message.toString(), 5000, "info"));
+			dispatch(triggerNotification(message.toString(), 5000, "success"));
 		},
 		error (message) {
 
