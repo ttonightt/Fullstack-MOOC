@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 
 import { fetchUserList } from "../../reducers/userReducer";
-import { Grid } from "@mui/material";
+import { Box, LinearProgress } from "@mui/joy";
 import User from "../User";
 
 
@@ -19,19 +19,20 @@ const UserListSection = () => {
 	if (userlist.length) {
 
 		return (
-			<Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+			<Box sx={{ display: "grid", gridTemplateColumns: "33% 33% 33%", gap: "1rem" }}>
 				{
 					userlist.map(user => 
-						<User
-							key={user.id}
-							user={user}
-						/>
+						<Box key={user.id}>
+							<User user={user} />
+						</Box>
 					)
 				}
-			</Grid>
+			</Box>
 		);
 	} else {
-		return "Loading...";
+		return (
+			<LinearProgress color="primary" size="sm" value={25} variant="soft" />
+		);
 	}
 };
 

@@ -21,7 +21,7 @@ const LoginSection = () => {
 			.unwrap()
 			.then(() => {
 
-				notify.log("You logged in successfully!");
+				notify.success("You logged in successfully!");
 
 				navigate("/posts");
 			})

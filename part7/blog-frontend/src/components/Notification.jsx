@@ -1,8 +1,12 @@
-import { Alert } from "@mui/joy";
+import { isFunction } from "lodash";
+
+import { Alert, Button } from "@mui/joy";
 
 import ReportIcon from "@mui/icons-material/Report";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import InfoIcon from "@mui/icons-material/Info";
+import { useDispatch } from "react-redux";
+import { closeNotification } from "../reducers/notificationReducer";
 
 const style = {
 	marginTop: "1em"
@@ -10,22 +14,36 @@ const style = {
 
 const Notification = ({notificationData}) => {
 
-	const {message, type} = notificationData;
+	const {message, type, confirmation} = notificationData;
+
+	const dispatch = useDispatch();
+
+	const alertProps = {};
 
 	switch (type) {
 		case "success":
-			return (
-				<Alert color="success" sx={style} startDecorator={ <CheckCircleIcon /> }>{message}</Alert>
-			);
+			Object.assign(alertProps, { color: "success", startDecorator: <CheckCircleIcon /> });
+			break;
 		case "error":
-			return (
-				<Alert color="danger" sx={style} startDecorator={ <ReportIcon /> }>{message}</Alert>
-			);
+			Object.assign(alertProps, { color: "danger", startDecorator: <ReportIcon /> });
+			break;
 		default:
-			return (
-				<Alert color="neutral" sx={style} startDecorator={ <InfoIcon /> }>{message}</Alert>
-			);
+			Object.assign(alertProps, { color: "neutral", startDecorator: <InfoIcon /> });
 	}
+
+	if (confirmation)
+		Object.assign(alertProps, {
+			endDecorator:
+				<Button
+					sx={{ borderRadius: "sm", px: "0.5em", py: "0.4em", lineHeight: "1em", minHeight: 0 }}
+					color={alertProps.color}
+					onClick={() => dispatch(closeNotification(notificationData.__notificationId))}
+				>Ok</Button>
+		});
+
+	return (
+		<Alert sx={style} variant="soft" {...alertProps}>{message}</Alert>
+	);
 };
 
 export default Notification;

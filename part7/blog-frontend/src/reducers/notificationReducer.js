@@ -1,6 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 
+let index = 0;
+
 const userSlice = createSlice({
 
 	name: "notification",
@@ -9,20 +11,12 @@ const userSlice = createSlice({
 
 		appendNotification (state, {payload}) {
 
-			Object.defineProperty(payload, "__notificationId", {
-
-				value: Symbol(),
-				writable: false,
-				configurable: false,
-				enumerable: false
-			});
-
 			state.push(payload);
 		},
 
 		detachNotification (state, {payload}) {
 
-			return state.filter(item => item.__notificationId !== payload.__notificationId);
+			return state.filter(item => item.__notificationId !== payload);
 		}
 	}
 });
@@ -40,24 +34,37 @@ export const closeNotification = notification => {
 	};
 };
 
-export const triggerNotification = (message, timeout, type) => {
+export const triggerNotification = (message, { timeout, type, confirmation }) => {
 
 	return dispatch => {
 
-		const notification = { message, type };
+		const id = index++;
 
-		const timeoutId = setTimeout(() => {
+		const notification = { message, type, confirmation };
 
-			dispatch(detachNotification(notification));
-		}, timeout);
+		Object.defineProperty(notification, "__notificationId", {
 
-		Object.defineProperty(notification, "__timeoutId", {
-
-			value: timeoutId,
+			value: id,
 			writable: false,
 			configurable: false,
 			enumerable: false
 		});
+
+		if (timeout > 0) {
+
+			const timeoutId = setTimeout(() => {
+
+				dispatch(detachNotification(id));
+			}, timeout);
+
+			Object.defineProperty(notification, "__timeoutId", {
+
+				value: timeoutId,
+				writable: false,
+				configurable: false,
+				enumerable: false
+			});
+		}
 
 		dispatch(appendNotification(notification));
 	};

@@ -1,18 +1,21 @@
 import { useDispatch, useSelector } from "react-redux";
 import { commentPost, dislikePost, fetchPosts, likePost } from "../../reducers/postReducer";
 import { useEffect } from "react";
-import { Avatar, Container, AvatarGroup, Button, TextField, Grid } from "@mui/material";
 import { Link } from "react-router-dom";
 
 import PostContextMenu from "../PostContextMenu";
 import { useState } from "react";
+import { Avatar, AvatarGroup, Box, Button, Card, Divider, IconButton, Input, Stack, Textarea, Typography } from "@mui/joy";
+
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 
 
 const SinglePostSection = ({ id }) => {
 
 	const seshUser = useSelector(state => state.session)?.user;
 
-	const [comment, setComment] = useState();
+	const [comment, setComment] = useState("");
 
 	const post = useSelector(state => state.posts.find(item => item.id === id));
 	const dispatch = useDispatch();
@@ -65,50 +68,81 @@ const SinglePostSection = ({ id }) => {
 			});
 	};
 
+	const postable = comment.length > 0;
+
 	if (post) {
-
 		return (
-			<Container maxWidth="sm">
-				<h2>{post.title}</h2>
-				<h4>
-					<i>by</i> <Avatar alt={post.user.username} src={`/public/avatars/${post.user.id}.png`} />
-
-					{post.likes.length}
-					<AvatarGroup max={4} spacing={24}>
-						{
-							post.likes.map(item => 
-								<Avatar key={item.id} alt={item.username} src={`/public/avatars/${item.id}.png`} />
-							)
-						}
-					</AvatarGroup>
-					<Button onClick={handleLike} data-testid="like-button" disabled={!interactive}>{liked ? "🩶" : "❤️"}</Button>
-					<PostContextMenu id={id} />
-				</h4>
-				<hr />
-				<p>{post.content}</p>
-				<hr />
-				<Grid container>
-					<Grid size="grow">
-						<TextField
-							value={comment}
-							onChange={e => setComment(e.target.value)}
-							fullWidth
-							multiline
-							variant="standard"
-						/>
-					</Grid>
-					<Grid size="auto">
-						<Button onClick={handleComment}>Share</Button>
-					</Grid>
-				</Grid>
-				{
-					post.comments.length === 0
-					?
-					"No comments"
-					:
-					post.comments.map((item, i) => <p key={i}>{item}</p>)
-				}
-			</Container>
+			<Stack direction="column" spacing={2}>
+				<Card variant="soft" size="lg" sx={{ gap: "0.4em" }}>
+					<Stack direction="row" sx={{ justifyContent: "space-between", alignItems: "start" }}>
+						<Box>
+							<Typography level="h3">
+								{post.title}
+							</Typography>
+							<Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+								<Typography level="body-md">
+									{post.author}  /
+								</Typography>
+								<Typography level="body-sm" fontStyle="italic" lineHeight="1em">Posted by</Typography>
+								<Avatar size="sm" alt={post.user.username} src={`/public/avatars/${post.user.id}.png`} />
+								<Typography level="body-sm" lineHeight="1em">@{post.user.username}</Typography>
+							</Stack>
+						</Box>
+						<Stack direction="row" spacing={1} sx={{ alignItems: "center", pl: "1.5em" }}>
+							<AvatarGroup spacing={24} sx={{ flexDirection: 'row-reverse' }}>
+								{
+									post.likes.length > 4
+									&&
+									<Avatar size="sm">
+										+{post.likes.length - 4}
+									</Avatar>
+								}
+								{
+									post.likes.slice(0, Math.min(4, post.likes.length)).map(item => 
+										<Avatar size="sm" key={item.id} alt={item.username} src={`/public/avatars/${item.id}.png`} />
+									)
+								}
+							</AvatarGroup>
+							<IconButton variant="plain" color="danger" disabled={!interactive} onClick={handleLike}>
+								{liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+							</IconButton>
+							<PostContextMenu id={post.id} />
+						</Stack>
+					</Stack>
+					<Typography level="body-lg" mt="0.5em">
+						{post.content}
+					</Typography>
+				</Card>
+				<Card variant="soft" color="warning" sx={{ p: 0, gap: 0 }}>
+					<Stack direction="row">
+						<Typography level="h4" color="warning" p="0.75em 1em 0.25em 1em" flexGrow={1}>Share your point...</Typography>
+						<Button variant={postable ? "solid" : "plain"} disabled={!postable} sx={{ m: "0.4em" }} color="warning" onClick={handleComment}>Comment</Button>
+					</Stack>
+					<Textarea
+						minRows={2}
+						variant="soft"
+						color="warning"
+						placeholder="I think..."
+						sx={{ pl: "1.25em", boxShadow: "none" }}
+						value={comment}
+						onChange={e => setComment(e.target.value)}
+					/>
+				</Card>
+				<Card variant="plain" sx={{ p: "0.5em 1.25rem" }}>
+					{
+						post.comments.length === 0
+						?
+						<Typography level="body-md">No comments</Typography>
+						:
+						post.comments.map((item, i) => (
+							<Box key={i}>
+								<Typography level="body-md">{item}</Typography>
+								<Divider />
+							</Box>
+						))
+					}
+				</Card>
+			</Stack>
 		);
 	} else {
 		return "Loading...";

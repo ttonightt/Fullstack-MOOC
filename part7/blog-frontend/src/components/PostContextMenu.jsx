@@ -1,27 +1,24 @@
-import { Button, Menu, MenuItem } from "@mui/material";
 import { useEffect, useState } from "react";
 
 import MoreHorizRoundedIcon from "@mui/icons-material/MoreHorizRounded";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchPosts, removePost, resetPostComments } from "../reducers/postReducer";
+import { Dropdown, Menu, MenuButton, MenuItem } from "@mui/joy";
+import { useNotify } from "../hooks";
 
 const ContextMenu = ({ id }) => {
-
-	const [anchor, setAnchor] = useState();
 
 	const seshUser = useSelector(state => state.session)?.user;
 	const post = useSelector(state => state.posts.find(item => item.id === id));
 	const dispatch = useDispatch();
+
+	const notify = useNotify();
 
 	useEffect(() => {
 
 		if (!post)
 			dispatch(fetchPosts());
 	}, []);
-
-	const handleOpen = e => setAnchor(e.currentTarget);
-
-	const handleClose = () => setAnchor(null);
 
 	const handleDelete = () => {
 
@@ -31,7 +28,7 @@ const ContextMenu = ({ id }) => {
 			.unwrap()
 			.then(() => {
 
-				notify.log("Post was successfully deleted!");
+				notify.success("Post was successfully deleted!");
 			})
 			.catch(e => {
 
@@ -62,19 +59,15 @@ const ContextMenu = ({ id }) => {
 	const disabled = !(seshUser && seshUser.id === post?.user.id);
 
 	return (<>
-		<Button
-			onClick={handleOpen}
-		>
-			<MoreHorizRoundedIcon />
-		</Button>
-		<Menu
-			anchorEl={anchor}
-			open={!!anchor}
-			onClose={handleClose}
-		>
-			<MenuItem disabled={disabled} onClick={handleResetComments}>Reset Comments</MenuItem>
-			<MenuItem disabled={disabled} onClick={handleDelete}>Delete Post</MenuItem>
-		</Menu>
+		<Dropdown>
+			<MenuButton disabled={disabled} sx={{ px: "0.5em" }} variant="plain">
+				<MoreHorizRoundedIcon />
+			</MenuButton>
+			<Menu>
+				<MenuItem disabled={disabled} onClick={handleResetComments}>Reset Comments</MenuItem>
+				<MenuItem disabled={disabled} onClick={handleDelete}>Delete Post</MenuItem>
+			</Menu>
+		</Dropdown>
 	</>);
 };
 

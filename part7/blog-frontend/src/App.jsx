@@ -28,29 +28,12 @@ const App = () => {
 	useEffect(() => {
 
 		if (seshUser)
-			dispatch(checkUser());
+			dispatch(checkUser())
+				.unwrap()
+				.catch(e => {
+					notify.confirm.error("Your login session passed over, please log in again");
+				});
 	}, []);
-
-	const handleSavePost = post => {
-
-		dispatch(createPost({post, token: user.token}))
-			.then(post_ => {
-
-				notify.log("You added the post");
-
-				toggleVisibility();
-			})
-			.catch(e => {
-
-				if (e.data.error.includes("token has expired")) {
-
-					alert("Your session seems to be expired, please log in again");
-					handleLogout();
-
-				} else
-					console.error(e);
-			});
-	};
 
 	const handleLogout = () => {
 
@@ -67,7 +50,7 @@ const App = () => {
 						tabs.map((item) =>
 							<Link key={item.title} to={item.url}>
 								<Button size="md" variant="soft"
-									color={item.url.startsWith(location.pathname) ? "primary" : "neutral"}
+									color={location.pathname.startsWith(item.url) ? "primary" : "neutral"}
 								>{item.title}</Button>
 							</Link>
 						)

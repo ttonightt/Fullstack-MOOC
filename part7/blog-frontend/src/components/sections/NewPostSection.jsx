@@ -1,6 +1,7 @@
-import { Accordion, AccordionDetails, AccordionSummary, AccordionGroup, Button, Input, Typography } from "@mui/joy";
+import { Accordion, AccordionDetails, AccordionSummary, AccordionGroup, IconButton, Input, Typography, Box, Stack, Textarea, Button } from "@mui/joy";
 import { accordionSummaryClasses } from "@mui/joy/AccordionSummary";
 import { accordionDetailsClasses } from "@mui/joy/AccordionDetails";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
@@ -23,10 +24,13 @@ const NewPostSection = () => {
 		dispatch(createPost({ post: { title, author, content }, token: seshUser.token }));
 
 		setTitle("");
-		setAuthor("");
+		setAuthor(seshUser?.name);
 		setContent("");
 		setExpanded(false);
 	};
+
+	const edited = title.length > 0;
+	const postable = title.length > 0 && author.length > 0 && content.length > 0;
 
 	if (seshUser)
 		return (
@@ -34,20 +38,60 @@ const NewPostSection = () => {
 				variant="soft"
 				size="lg"
 				sx={{
-					borderRadius: "md",
-					[`& .${accordionSummaryClasses.button}:hover`]: { bgcolor: "transparent" },
-					[`& .${accordionSummaryClasses.root}`]: { px: "1em" },
-					[`& .${accordionDetailsClasses.content}`]: { px: "1em" }
+					borderRadius: "sm",
+					mb: "1rem"
 				}}
 			>
 				<Accordion
-					expanded={expanded} onChange={() => setExpanded(!expanded)}
+					expanded={expanded}
+					sx={{ p: 0 }}
 				>
-					<AccordionSummary>
-						<Typography color="neutral" level="h4" fontWeight="xl">New post...</Typography>
-					</AccordionSummary>
-					<AccordionDetails>
-						...
+					<Stack direction="row" sx={{ height: "var(--ListItem-minHeight)" }}>
+						<Input
+							placeholder="New post..."
+							variant="soft"
+							sx={{ typography: "h4", flexGrow: 1, boxShadow: "none", pl: "1rem" }}
+							value={title}
+							onChange={e => {
+								setTitle(e.target.value);
+								setExpanded(true);
+							}}
+						/>
+						{
+							edited
+							?
+							<Button disabled={!postable} size="sm" onClick={handlePublish} sx={{ m: "0.4em" }}>Share</Button>
+							:
+							<IconButton variant="plain" sx={{ px: "1em", ":hover": { bgcolor: "transparent" } }} onClick={() => setExpanded(!expanded)}>
+								<KeyboardArrowDownIcon sx={{ transform: expanded && "rotate(180deg)", transition: "" }} />
+							</IconButton>
+						}
+					</Stack>
+					<AccordionDetails sx={{
+						marginInline: 0,
+						[`.${accordionDetailsClasses.content}`]: {
+							paddingInline: 0,
+							p: 0,
+						}
+					}}>
+						<Stack direction="row" sx={{ pl: "1rem" }}>
+							<Typography level="body-md" variant="plain" width="fit-content" lineHeight="2em">by</Typography>
+							<Input
+								placeholder="Author"
+								variant="soft"
+								sx={{ flexGrow: 1, boxShadow: "none" }}
+								value={author}
+								onChange={e => setAuthor(e.target.value)}
+							/>
+						</Stack>
+						<Textarea
+							sx={{ boxShadow: "none", pl: "1rem" }}
+							minRows={3}
+							variant="soft"
+							placeholder="Your story here..."
+							value={content}
+							onChange={e => setContent(e.target.value)}
+						/>
 					</AccordionDetails>
 				</Accordion>
 			</AccordionGroup>

@@ -9,12 +9,16 @@ import SinglePostSection from "./sections/SinglePostSection";
 import NewPostSection from "./sections/NewPostSection";
 
 
-export const UserList = () => <UserListSection/>;
+export const UserList = () => (
+	<Box sx={{ width: "60vw" }}>
+		<UserListSection/>
+	</Box>
+);
 
 export const PostList = () => (
 	<Box sx={{ width: "60vw" }}>
-		<PostListSection/>
 		<NewPostSection/>
+		<PostListSection/>
 	</Box>
 );
 
@@ -22,14 +26,22 @@ export const UserProfile = () => {
 
 	const { id } = useParams();
 
-	return <SingleUserSection id={id} />;
+	return (
+		<Box sx={{ width: "60vw" }}>
+			<SingleUserSection id={id} />
+		</Box>
+	);
 };
 
 export const Post = () => {
 
 	const { id } = useParams();
 
-	return <SinglePostSection id={id} />
+	return (
+		<Box sx={{ width: "60vw" }}>
+			<SinglePostSection id={id} />
+		</Box>
+	);
 };
 
 export const Login = () => <LoginSection/>;

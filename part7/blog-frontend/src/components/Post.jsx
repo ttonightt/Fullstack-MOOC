@@ -46,14 +46,13 @@ export const Post = ({ post }) => {
 					noWrap
 					level="h4"
 					fontWeight="md"
-					flexGrow={1}
-					pr="0.5em"
+					display="inline"
 				>
 					<Link to={post.id}>
 						{post.title}
 					</Link>
 				</Typography>
-				<Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+				<Stack direction="row" spacing={1} sx={{ alignItems: "center", pl: "1.5em" }}>
 					<AvatarGroup spacing={24} sx={{ flexDirection: 'row-reverse' }}>
 						{
 							post.likes.length > 4
@@ -68,40 +67,19 @@ export const Post = ({ post }) => {
 							)
 						}
 					</AvatarGroup>
-					<IconButton variant="soft" color="danger" disabled={!interactive} onClick={handleLike}>
+					<IconButton variant="plain" color="danger" disabled={!interactive} onClick={handleLike}>
 						{liked ? <FavoriteIcon /> : <FavoriteBorderIcon />}
 					</IconButton>
 				</Stack>
 			</Stack>
 			<Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-				<Typography level="body-sm" fontStyle="italic" lineHeight="1em">by</Typography>
+				<Typography level="body-md">
+					{post.author}  /
+				</Typography>
+				<Typography level="body-sm" fontStyle="italic" lineHeight="1em">Posted by</Typography>
 				<Avatar size="sm" alt={post.user.username} src={`/public/avatars/${post.user.id}.png`} />
 				<Typography level="body-sm" lineHeight="1em">@{post.user.username}</Typography>
 			</Stack>
-			{/*<Grid size="grow">
-				<Paper>
-					<Link to={post.id}>
-						<h3>{post.title}</h3>
-					</Link>
-					<Avatar key={post.user.id} alt={post.user.username} src={`/public/avatars/${post.user.id}.png`} />
-					{post.user.name}
-				</Paper>
-			</Grid>
-			<Grid size="auto">
-				<Paper>
-					{post.likes.length}
-					<AvatarGroup max={4} spacing={24}>
-						{
-							post.likes.map(item => 
-								<Avatar key={item.id} alt={item.username} src={`/public/avatars/${item.id}.png`} />
-							)
-						}
-					</AvatarGroup>
-				</Paper>
-			</Grid>
-			<Grid size="auto">
-				<Button onClick={handleLike} data-testid="like-button" disabled={!interactive}>{liked ? "🩶" : "❤️"}</Button>
-			</Grid>*/}
 		</Card>
 	);
 };
