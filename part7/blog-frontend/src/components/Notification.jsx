@@ -1,5 +1,3 @@
-import { isFunction } from "lodash";
-
 import { Alert, Button } from "@mui/joy";
 
 import ReportIcon from "@mui/icons-material/Report";

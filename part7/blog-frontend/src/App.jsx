@@ -22,7 +22,7 @@ const App = () => {
 	const dispatch = useDispatch();
 
 	const notify = useNotify();
-
+	const navigate = useNavigate();
 	const location = useLocation();
 
 	useEffect(() => {
@@ -38,6 +38,7 @@ const App = () => {
 	const handleLogout = () => {
 
 		dispatch(logoutUser());
+		navigate("/login");
 	};
 
 	return (
@@ -61,7 +62,7 @@ const App = () => {
 						seshUser
 						?
 						(<Stack spacing={1} direction="row" sx={{ alignItems: "center" }}>
-							<Avatar alt={seshUser.username} src={`/public/avatars/${seshUser.id}.png`} />
+							<Avatar alt={seshUser.username} src={`/public/avatars/${seshUser.username}.png`} />
 							<Box>
 								<Typography lineHeight="1.25em" level="body-sm" fontWeight="lg">{seshUser.name}</Typography>
 								<Typography lineHeight="1.25em" level="body-sm">@{seshUser.username}</Typography>

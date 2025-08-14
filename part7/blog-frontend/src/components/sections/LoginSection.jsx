@@ -34,8 +34,8 @@ const LoginSection = () => {
 
 	return (<>
 		<Card sx={{ width: "300px" }}>
-			<Input variant="soft" placeholder="username" value={username} onChange={e => setUsername(e.target.value)}/>
-			<Input variant="soft" placeholder="password" value={password} onChange={e => setPassword(e.target.value)}
+			<Input data-testid="login-username" variant="soft" placeholder="username" value={username} onChange={e => setUsername(e.target.value)}/>
+			<Input data-testid="login-password" variant="soft" placeholder="password" value={password} onChange={e => setPassword(e.target.value)}
 				type={passwordVisibility ? "text" : "password"}
 				endDecorator={
 					<Button onClick={() => setPasswordVisibility(!passwordVisibility)}>
@@ -43,7 +43,7 @@ const LoginSection = () => {
 					</Button>
 				}
 			/>
-			<Button size="sm" variant="soft" onClick={() => handleSubmit(username, password)}>Login</Button>
+			<Button data-testid="login-submit" size="sm" variant="soft" onClick={() => handleSubmit(username, password)}>Login</Button>
 		</Card>
 	</>);
 };

@@ -9,6 +9,7 @@ import { Avatar, AvatarGroup, Box, Button, Card, Divider, IconButton, Input, Sta
 
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import { usePosts } from "../../hooks";
 
 
 const SinglePostSection = ({ id }) => {
@@ -17,14 +18,12 @@ const SinglePostSection = ({ id }) => {
 
 	const [comment, setComment] = useState("");
 
-	const post = useSelector(state => state.posts.find(item => item.id === id));
 	const dispatch = useDispatch();
 
-	useEffect(() => {
+	const post = usePosts(id);
 
-		if (!post)
-			dispatch(fetchPosts());
-	}, []);
+	if (!post)
+		return ;
 
 	const handleComment = () => {
 
@@ -68,7 +67,7 @@ const SinglePostSection = ({ id }) => {
 			});
 	};
 
-	const postable = comment.length > 0;
+	const postable = seshUser && comment.length > 0;
 
 	if (post) {
 		return (
@@ -84,8 +83,10 @@ const SinglePostSection = ({ id }) => {
 									{post.author}  /
 								</Typography>
 								<Typography level="body-sm" fontStyle="italic" lineHeight="1em">Posted by</Typography>
-								<Avatar size="sm" alt={post.user.username} src={`/public/avatars/${post.user.id}.png`} />
-								<Typography level="body-sm" lineHeight="1em">@{post.user.username}</Typography>
+								<Avatar size="sm" alt={post.user.username} src={`/public/avatars/${post.user.username}.png`} />
+								<Link to={`/users/${post.user.id}`}>
+									<Typography level="body-sm" lineHeight="1em">@{post.user.username}</Typography>
+								</Link>
 							</Stack>
 						</Box>
 						<Stack direction="row" spacing={1} sx={{ alignItems: "center", pl: "1.5em" }}>
@@ -99,7 +100,7 @@ const SinglePostSection = ({ id }) => {
 								}
 								{
 									post.likes.slice(0, Math.min(4, post.likes.length)).map(item => 
-										<Avatar size="sm" key={item.id} alt={item.username} src={`/public/avatars/${item.id}.png`} />
+										<Avatar size="sm" key={item.id} alt={item.username} src={`/public/avatars/${item.username}.png`} />
 									)
 								}
 							</AvatarGroup>

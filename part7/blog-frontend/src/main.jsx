@@ -16,6 +16,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
 		<BrowserRouter>
 			<CssBaseline />
 			<NotificationContainer
+				data-testid="notifications"
 				useNotificationData={() => useSelector(state => state.notification)}
 				Template={Notification}
 			/>

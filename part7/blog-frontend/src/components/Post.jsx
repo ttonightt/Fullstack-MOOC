@@ -63,7 +63,7 @@ export const Post = ({ post }) => {
 						}
 						{
 							post.likes.slice(0, Math.min(4, post.likes.length)).map(item => 
-								<Avatar size="sm" key={item.id} alt={item.username} src={`/public/avatars/${item.id}.png`} />
+								<Avatar size="sm" key={item.id} alt={item.username} src={`/public/avatars/${item.username}.png`} />
 							)
 						}
 					</AvatarGroup>
@@ -77,8 +77,10 @@ export const Post = ({ post }) => {
 					{post.author}  /
 				</Typography>
 				<Typography level="body-sm" fontStyle="italic" lineHeight="1em">Posted by</Typography>
-				<Avatar size="sm" alt={post.user.username} src={`/public/avatars/${post.user.id}.png`} />
-				<Typography level="body-sm" lineHeight="1em">@{post.user.username}</Typography>
+				<Avatar size="sm" alt={post.user.username} src={`/public/avatars/${post.user.username}.png`} />
+				<Link to={`/users/${post.user.id}`}>
+					<Typography level="body-sm" lineHeight="1em">@{post.user.username}</Typography>
+				</Link>
 			</Stack>
 		</Card>
 	);

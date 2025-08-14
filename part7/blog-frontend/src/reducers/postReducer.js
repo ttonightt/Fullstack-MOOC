@@ -2,6 +2,23 @@ import { createAsyncThunk, createSlice, current } from "@reduxjs/toolkit";
 import * as postService from "../services/posts";
 
 
+export const fetchPosts = createAsyncThunk(
+	"user/fetchStatus",
+	async (action, thunk) => {
+
+		try {
+			return await postService.getAll();
+
+		} catch ({ status, response }) {
+
+			return thunk.rejectWithValue({
+				status,
+				data: response.data
+			});
+		}
+	}
+);
+
 export const createPost = createAsyncThunk(
 	"user/createStatus",
 	async ({ post, token }, thunk) => {
@@ -106,61 +123,39 @@ export const resetPostComments = createAsyncThunk(
 	}
 );
 
+const replaceWithPayload = (state, payload) => {
+
+	return state.map(post => post.id === payload.id ? payload : post);
+};
+
 const postSlice = createSlice({
 
 	name: "posts",
-	initialState: [],
-	reducers: {
-
-		setPosts (state, {payload}) {
-
-			return payload;
-		}
-	},
+	initialState: null,
 	extraReducers (builder) {
 
-		builder.addCase(createPost.fulfilled, (state, {payload}) => {
+		builder
+			.addCase(fetchPosts.fulfilled, (state, {payload}) => {
 
-			return state.concat(payload);
-		});
+				return payload;
+			})
+			.addCase(createPost.fulfilled, (state, {payload}) => {
 
-		builder.addCase(likePost.fulfilled, (state, {payload}) => {
+				return state.concat(payload);
+			})
+			.addCase(likePost.fulfilled, (state, {payload}) => replaceWithPayload(state, payload))
 
-			return state.map(post => post.id === payload.id ? payload : post);
-		});
+			.addCase(dislikePost.fulfilled, (state, {payload}) => replaceWithPayload(state, payload))
 
-		builder.addCase(dislikePost.fulfilled, (state, {payload}) => {
+			.addCase(commentPost.fulfilled, (state, {payload}) => replaceWithPayload(state, payload))
 
-			return state.map(post => post.id === payload.id ? payload : post);
-		});
+			.addCase(resetPostComments.fulfilled, (state, {payload}) => replaceWithPayload(state, payload))
 
-		builder.addCase(commentPost.fulfilled, (state, {payload}) => {
+			.addCase(removePost.fulfilled, (state, {payload}) => {
 
-			return state.map(post => post.id === payload.id ? payload : post);
-		});
-
-		builder.addCase(resetPostComments.fulfilled, (state, {payload}) => {
-
-			return state.map(post => post.id === payload.id ? payload : post);
-		});
-
-		builder.addCase(removePost.fulfilled, (state, {payload}) => {
-
-			return state.filter(post => post.id !== payload.id);
-		});
+				return state.filter(post => post.id !== payload.id);
+			});
 	}
 });
 
-const { setPosts } = postSlice.actions;
 export default postSlice.reducer;
-
-
-export const fetchPosts = () => {
-
-	return async dispatch => {
-
-		const posts = await postService.getAll();
-
-		dispatch(setPosts(posts));
-	}
-};

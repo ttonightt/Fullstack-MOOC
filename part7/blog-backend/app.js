@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const loginRouter = require("./controllers/loginRouter");
 const postRouter = require("./controllers/postRouter");
 const userRouter = require("./controllers/userRouter");
+const testRouter = require("./controllers/testRouter");
 
 const logger = require("./utils/logger");
 const middleware = require("./utils/middleware");
@@ -17,17 +18,18 @@ const connectToDB = async () => {
 
 	let uri;
 
-	if (config.NODE_ENV === "test") {
+	switch (config.NODE_ENV) {
+		case "test":
+			logger.info("DB is running on local Mongo Memory Server");
 
-		logger.info("DB is running on local Mongo Server");
+			uri = ( await mongoLocalServer.create() ).getUri();
+			break;
+		case "production":
+		case "development":
+			logger.info("DB is running on external Mongo Server");
 
-		uri = ( await mongoLocalServer.create() ).getUri();
-
-	} else {
-
-		logger.info("DB is running on external Mongo Server");
-
-		uri = config.MONGODB_URI;
+			uri = config.MONGODB_URI;
+			break;
 	}
 
 	try {
@@ -49,6 +51,8 @@ app.use(express.json());
 app.use(middleware.requestLogger);
 app.use(middleware.tokenExtractor);
 
+if (config.NODE_ENV === "test")
+	app.use("/api/test", testRouter);
 app.use("/api/login", loginRouter);
 app.use("/api/posts", postRouter);
 app.use("/api/users", userRouter);

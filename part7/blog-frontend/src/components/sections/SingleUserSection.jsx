@@ -24,7 +24,7 @@ const SingleUserSection = ({ id }) => {
 		return (
 			<Card variant="soft" size="lg">
 				<Stack direction="row" spacing={3} sx={{ alignItems: "center", flexWrap: "nowrap" }}>
-					<Avatar sx={{ width: 100, height: 100 }} alt={user.username} src={`/public/avatars/${user.id}.png`} />
+					<Avatar sx={{ width: 100, height: 100 }} alt={user.username} src={`/public/avatars/${user.username}.png`} />
 					<Box sx={{ flexGrow: 1, flexBasis: 0, minWidth: 0 }}>
 						<Typography level="h3">
 							{user.name}
