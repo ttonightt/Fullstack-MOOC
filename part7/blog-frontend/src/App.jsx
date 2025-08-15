@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNotify } from "./hooks";
+import { useErrorHandler, useNotify } from "./hooks";
 import { Route, Routes, Link, useNavigate, useLocation } from "react-router-dom";
 
 import { logoutUser, checkUser } from "./reducers/seshReducer";
 import { fetchPosts, createPost, likePost, dislikePost, removePost } from "./reducers/postReducer";
 
-import { Button, ButtonGroup, Sheet, Stack, Typography, Avatar, Box } from "@mui/joy";
+import { Button, ButtonGroup, Sheet, Stack, Typography, Avatar, Box, LinearProgress } from "@mui/joy";
 
 import * as Pages from "./components/Pages";
 
@@ -18,21 +18,21 @@ const tabs = [
 
 const App = () => {
 
-	const seshUser = useSelector(state => state.session)?.user;
+	const session = useSelector(state => state.session);
 	const dispatch = useDispatch();
 
-	const notify = useNotify();
+	const errorHandler = useErrorHandler();
 	const navigate = useNavigate();
 	const location = useLocation();
 
+	console.log("App");
+
 	useEffect(() => {
 
-		if (seshUser)
+		if (session.status === "stored")
 			dispatch(checkUser())
 				.unwrap()
-				.catch(e => {
-					notify.confirm.error("Your login session passed over, please log in again");
-				});
+				.catch(errorHandler);
 	}, []);
 
 	const handleLogout = () => {
@@ -58,26 +58,30 @@ const App = () => {
 					}
 					</ButtonGroup>
 					<Box>
-					{
-						seshUser
-						?
-						(<Stack spacing={1} direction="row" sx={{ alignItems: "center" }}>
-							<Avatar alt={seshUser.username} src={`/public/avatars/${seshUser.username}.png`} />
-							<Box>
-								<Typography lineHeight="1.25em" level="body-sm" fontWeight="lg">{seshUser.name}</Typography>
-								<Typography lineHeight="1.25em" level="body-sm">@{seshUser.username}</Typography>
-							</Box>
-							<Button onClick={handleLogout}>Log Out</Button>
-						</Stack>)
-						:
-						<Link to="/login">
-							<Button>Log In</Button>
-						</Link>
-					}
+						{session.status === "fetching" &&
+
+							<LinearProgress sx={{ width: "100px" }} color="primary" size="sm" value={25} variant="soft" />
+						}
+						{session.status === "empty" &&
+
+							<Link to="/login">
+								<Button>Log In</Button>
+							</Link>
+						}
+						{session.status === "stored" &&
+
+							<Stack spacing={1} direction="row" sx={{ alignItems: "center" }}>
+								<Avatar alt={session.data.user.username} src={`/public/avatars/${session.data.user.username}.png`} />
+								<Box>
+									<Typography lineHeight="1.25em" level="body-sm" fontWeight="lg">{session.data.user.name}</Typography>
+									<Typography lineHeight="1.25em" level="body-sm">@{session.data.user.username}</Typography>
+								</Box>
+								<Button onClick={handleLogout}>Log Out</Button>
+							</Stack>
+						}
 					</Box>
 				</Stack>
 			</Sheet>
-
 			<Stack sx={{ py: "2em", justifyContent: "center", alignItems: "center", flexGrow: 1 }}>
 				<Routes>
 					{/*<Route path="/" element={} />*/}

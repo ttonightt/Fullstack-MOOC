@@ -15,7 +15,7 @@ const LoginSection = () => {
 	const [password, setPassword] = useState("");
 	const [passwordVisibility, setPasswordVisibility] = useState(false);
 
-	const handleSubmit = (username, password) => {
+	const handleSubmit = () => {
 
 		dispatch(loginUser({username, password}))
 			.unwrap()
@@ -43,7 +43,7 @@ const LoginSection = () => {
 					</Button>
 				}
 			/>
-			<Button data-testid="login-submit" size="sm" variant="soft" onClick={() => handleSubmit(username, password)}>Login</Button>
+			<Button data-testid="login-submit" size="sm" variant="soft" onClick={handleSubmit}>Login</Button>
 		</Card>
 	</>);
 };

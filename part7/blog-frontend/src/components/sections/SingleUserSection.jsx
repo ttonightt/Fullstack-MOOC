@@ -53,8 +53,8 @@ const SingleUserSection = ({ id }) => {
 				{user.posts.map(post => 
 
 					<Card variant="plain" key={post.id}>
-						<Stack direction="row" sx={{ alignItems: "start", justifyContent: "space-between" }}>
-							<Box>
+						<Stack direction="row" sx={{ alignItems: "start", justifyContent: "space-between", flexWrap: "nowrap" }}>
+							<Box sx={{ flexGrow: 1, overflow: "hidden" }}>
 								<Link to={`/posts/${post.id}`} key={post.id}>
 									<Typography textOverflow="ellipsis" noWrap level="h4" fontWeight="md">
 										{post.title}

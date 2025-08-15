@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const {SECRET} = require("../utils/config");
+const {SECRET, SESSION_TIMEOUT} = require("../utils/config");
 
 const loginRouter = require("express").Router();
 const middleware = require("../utils/middleware");
@@ -28,7 +28,7 @@ loginRouter.post("/", async (req, res, next) => {
 	const token = jwt.sign(
 		user_, 
 		SECRET,
-		{expiresIn: 60 * 15} // 60 * 15
+		{expiresIn: SESSION_TIMEOUT}
 	);
 
 	res.status(200).send({

@@ -83,3 +83,13 @@ export const usePosts = id => {
 
 	return posts;
 };
+
+export const useErrorHandler = () => {
+
+	const notify = useNotify();
+
+	return e => {
+
+		if (e.data.error.includes("token has expired")) return notify.confirm.error("Your login session passed over, please log in again");
+	};
+};

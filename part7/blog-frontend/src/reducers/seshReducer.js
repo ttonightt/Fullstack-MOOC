@@ -21,18 +21,18 @@ export const loginUser = createAsyncThunk(
 
 export const checkUser = createAsyncThunk(
 	"session/checkStatus",
-	async (data, thunk) => {
+	async (___, thunk) => {
 
-		const user = JSON.parse(window.localStorage.getItem("session"))?.user;
+		const stored = JSON.parse(window.localStorage.getItem("session"));
 
-		if (!user)
+		if (!stored)
 			return thunk.rejectWithValue({
 				status: 0,
 				data: { error: "A user isn't saved in the local browser storage" }
 			});
 
 		try {
-			return await loginService.check(user.token);
+			return await loginService.check(stored.user.token);
 
 		} catch ({ status, response }) {
 
@@ -45,38 +45,60 @@ export const checkUser = createAsyncThunk(
 );
 
 
+const initStoreState = JSON.parse(window.localStorage.getItem("session"));
+
 const userSlice = createSlice({
 
 	name: "session",
-	initialState: JSON.parse(window.localStorage.getItem("session")),
+	initialState: {
+		data: initStoreState,
+		status: initStoreState ?.user ?.token ? "stored" : "empty"
+	},
 	reducers: {
 
 		setSessionUser (state, {payload}) {
 
-			return payload;
+			return {...state, data: payload };
+		},
+
+		setSessionStatus (state, {payload}) {
+
+			return {...state, status: payload };
 		}
 	},
 	extraReducers (builder) {
 
-		builder.addCase(loginUser.fulfilled, (state, {payload}) => {
+		builder
+			.addCase(loginUser.fulfilled, (state, {payload}) => {
+				console.log("checkUser/fulfilled");
+				const session = {user: payload};
 
-			const session = {user: payload};
+				window.localStorage.setItem("session", JSON.stringify(session));
 
-			window.localStorage.setItem("session", JSON.stringify(session));
+				return { data: session, status: "stored" };
+			})
+			.addCase(loginUser.pending, (state) => {
+				console.log("loginUser/pending");
+				return {...state, status: "fetching" };
+			})
+			.addCase(checkUser.fulfilled, (state) => {
+				console.log("checkUser/fulfilled");
+				return {...state, status: "stored" };
+			})
+			.addCase(checkUser.pending, (state) => {
+				console.log("checkUser/pending");
+				return {...state, status: "fetching" };
+			})
+			.addCase(checkUser.rejected, () => {
+				console.log("checkUser/rejected");
+				window.localStorage.removeItem("session");
 
-			return session;
-		});
-
-		builder.addCase(checkUser.rejected, () => {
-
-			window.localStorage.removeItem("session");
-
-			return null;
-		});
+				return { data: null, status: "empty" };
+			});
 	}
 });
 
-const {setSessionUser} = userSlice.actions;
+const {setSessionUser, setSessionStatus} = userSlice.actions;
 export default userSlice.reducer;
 
 
@@ -87,5 +109,6 @@ export const logoutUser = () => {
 		window.localStorage.removeItem("session");
 
 		dispatch(setSessionUser(null));
+		dispatch(setSessionStatus("empty"));
 	};
 };

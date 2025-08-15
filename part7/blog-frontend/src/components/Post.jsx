@@ -5,37 +5,31 @@ import { Button, AvatarGroup, Avatar, Stack, Card, Box, Typography, IconButton }
 import { dislikePost, likePost } from "../reducers/postReducer";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import { useErrorHandler } from "../hooks";
 
 
 export const Post = ({ post }) => {
 
-	const seshUser = useSelector(state => state.session)?.user;
+	const session = useSelector(state => state.session);
 	const dispatch = useDispatch();
+
+	const errorHandler = useErrorHandler();
 
 	const { id } = post;
 	
-	const interactive = !!seshUser;
+	const interactive = session.status === "stored";
 	const liked = interactive ? post.likes.some(item => item.id === seshUser.id) : false;
 
 	const handleLike = () => {
 		(
 			liked
 			?
-			dispatch(dislikePost({id, token: seshUser.token}))
+			dispatch(dislikePost({id, token: session.data.user.token}))
 			:
-			dispatch(likePost({id, token: seshUser.token}))
+			dispatch(likePost({id, token: session.data.user.token}))
 		)
 			.unwrap()
-			.catch(e => {
-
-				console.error(e);
-
-				if (e.data.error.includes("token has expired")) {
-
-					alert("Your session seems to be expired, please log in again");
-					handleLogout();
-				}
-			});
+			.catch(errorHandler);
 	};
 
 	return (
