@@ -10,21 +10,21 @@ import { useEffect } from "react";
 
 const NewPostSection = () => {
 
-	const seshUser = useSelector(state => state.session)?.user;
+	const session = useSelector(state => state.session);
 	const dispatch = useDispatch();
 
 	const [title, setTitle] = useState("");
-	const [author, setAuthor] = useState(seshUser?.name);
+	const [author, setAuthor] = useState(session.status === "stored" ? session.data.user.name : "");
 	const [content, setContent] = useState("");
 
 	const [expanded, setExpanded] = useState(false);
 
 	const handlePublish = () => {
 
-		dispatch(createPost({ post: { title, author, content }, token: seshUser.token }));
+		dispatch(createPost({ post: { title, author, content }, token: session.data.user.token }));
 
 		setTitle("");
-		setAuthor(seshUser?.name);
+		setAuthor(session.status === "stored" ? session.data.user.name : "");
 		setContent("");
 		setExpanded(false);
 	};
@@ -32,7 +32,7 @@ const NewPostSection = () => {
 	const edited = title.length > 0;
 	const postable = title.length > 0 && author.length > 0 && content.length > 0;
 
-	if (seshUser)
+	if (session.status === "stored")
 		return (
 			<AccordionGroup
 				variant="soft"

@@ -18,7 +18,7 @@ export const Post = ({ post }) => {
 	const { id } = post;
 	
 	const interactive = session.status === "stored";
-	const liked = interactive ? post.likes.some(item => item.id === seshUser.id) : false;
+	const liked = interactive ? post.likes.some(item => item.id === session.data.user.id) : false;
 
 	const handleLike = () => {
 		(

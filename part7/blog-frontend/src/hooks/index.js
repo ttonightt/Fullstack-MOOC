@@ -2,6 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { triggerNotification, appendNotification } from "../reducers/notificationReducer";
 import { fetchPosts } from "../reducers/postReducer";
 import { useEffect } from "react";
+import { logoutUser } from "../reducers/seshReducer";
 
 export const useNotify = () => {
 
@@ -47,29 +48,19 @@ export const useNotify = () => {
 export const usePosts = id => {
 
 	const notify = useNotify();
-
-	const posts = useSelector(state => {
-		
-		if (id) {
-
-			if (state.posts) {
-
-				const post = state.posts.find(item => item.id === id);
-
-				if (post) 
-					return post;
-
-				notify.confirm.error("Unknown endpoint!");
-			}
-
-			return undefined;
-		} else {
-
-			return state.posts;
-		}
-	});
-
 	const dispatch = useDispatch();
+
+	const posts = useSelector(state => state.posts);
+	const post = posts ?.find(item => item.id === id);
+
+	const errorHandler = useErrorHandler();
+
+	useEffect(() => {
+
+		if (id && posts && !post)
+			errorHandler("Unknown endpoint!");
+
+	}, [posts ?.length || 0]);
 
 	useEffect(() => {
 
@@ -81,15 +72,44 @@ export const usePosts = id => {
 			});
 	}, []);
 
-	return posts;
+	return id ? post : posts;
 };
 
 export const useErrorHandler = () => {
 
 	const notify = useNotify();
+	const dispatch = useDispatch();
 
 	return e => {
 
-		if (e.data.error.includes("token has expired")) return notify.confirm.error("Your login session passed over, please log in again");
+		if (e === "Unknown endpoint!") {
+
+			notify.confirm.error("Unknown endpoint!");
+			return;
+		};
+
+		if (e.data.error.includes("token has expired")) {
+
+			notify.confirm.error("Your login session passed over, please log in again");
+			dispatch(logoutUser());
+			return;
+		};
 	};
 };
+
+//export const useSession = () => {
+
+//	const session = useSelector(state => state.session);
+
+//	const errorHandler = useErrorHandler();
+
+//	useEffect(() => {
+
+//		if (session.status === "stored")
+//			dispatch(checkUser())
+//				.unwrap()
+//				.catch(errorHandler);
+//	}, []);
+
+//	return { status: session.status, user: session.data ?.user };
+//};

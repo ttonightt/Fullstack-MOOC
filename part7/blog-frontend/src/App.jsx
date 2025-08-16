@@ -4,7 +4,6 @@ import { useErrorHandler, useNotify } from "./hooks";
 import { Route, Routes, Link, useNavigate, useLocation } from "react-router-dom";
 
 import { logoutUser, checkUser } from "./reducers/seshReducer";
-import { fetchPosts, createPost, likePost, dislikePost, removePost } from "./reducers/postReducer";
 
 import { Button, ButtonGroup, Sheet, Stack, Typography, Avatar, Box, LinearProgress } from "@mui/joy";
 

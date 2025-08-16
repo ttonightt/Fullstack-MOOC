@@ -28,7 +28,7 @@ loginRouter.post("/", async (req, res, next) => {
 	const token = jwt.sign(
 		user_, 
 		SECRET,
-		{expiresIn: SESSION_TIMEOUT}
+		{expiresIn: SESSION_TIMEOUT || 3600}
 	);
 
 	res.status(200).send({

@@ -7,7 +7,8 @@ import { useDispatch } from "react-redux";
 import { closeNotification } from "../reducers/notificationReducer";
 
 const style = {
-	marginTop: "1em"
+	marginTop: "1em",
+	maxWidth: "40vw"
 };
 
 const Notification = ({notificationData}) => {

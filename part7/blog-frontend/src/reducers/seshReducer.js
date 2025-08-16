@@ -25,7 +25,7 @@ export const checkUser = createAsyncThunk(
 
 		const stored = JSON.parse(window.localStorage.getItem("session"));
 
-		if (!stored)
+		if (!stored ?.user)
 			return thunk.rejectWithValue({
 				status: 0,
 				data: { error: "A user isn't saved in the local browser storage" }
@@ -80,6 +80,10 @@ const userSlice = createSlice({
 			.addCase(loginUser.pending, (state) => {
 				console.log("loginUser/pending");
 				return {...state, status: "fetching" };
+			})
+			.addCase(loginUser.rejected, (state) => {
+				console.log("loginUser/rejected");
+				return {...state, status: "empty" };
 			})
 			.addCase(checkUser.fulfilled, (state) => {
 				console.log("checkUser/fulfilled");

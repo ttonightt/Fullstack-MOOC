@@ -37,6 +37,8 @@ export const Post = () => {
 
 	const { id } = useParams();
 
+	console.log("Pages.Post");
+
 	return (
 		<Box sx={{ width: "60vw" }}>
 			<SinglePostSection id={id} />
