@@ -1,27 +1,37 @@
-import { Accordion, AccordionDetails, AccordionSummary, AccordionGroup, IconButton, Input, Typography, Box, Stack, Textarea, Button } from "@mui/joy";
-import { accordionSummaryClasses } from "@mui/joy/AccordionSummary";
+import { Accordion, AccordionDetails, AccordionSummary, AccordionGroup, IconButton, Input, Typography, Box, Stack, Textarea, Button, LinearProgress } from "@mui/joy";
 import { accordionDetailsClasses } from "@mui/joy/AccordionDetails";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
 import { createPost } from "../../reducers/postReducer";
-import { useEffect } from "react";
+import { useErrorHandler, useNotify } from "../../hooks";
 
 const NewPostSection = () => {
 
 	const session = useSelector(state => state.session);
+
 	const dispatch = useDispatch();
+	const errorHandler = useErrorHandler();
+	const notify = useNotify();
 
 	const [title, setTitle] = useState("");
 	const [author, setAuthor] = useState(session.status === "stored" ? session.data.user.name : "");
 	const [content, setContent] = useState("");
-
 	const [expanded, setExpanded] = useState(false);
+
 
 	const handlePublish = () => {
 
-		dispatch(createPost({ post: { title, author, content }, token: session.data.user.token }));
+		if (session.status !== "stored") return;
+
+		dispatch(createPost({ post: { title, author, content }, token: session.data.user.token }))
+			.unwrap()
+			.then(() => {
+
+				notify.success("The post was created successfully!");
+			})
+			.catch(errorHandler);
 
 		setTitle("");
 		setAuthor(session.status === "stored" ? session.data.user.name : "");
@@ -31,6 +41,11 @@ const NewPostSection = () => {
 
 	const edited = title.length > 0;
 	const postable = title.length > 0 && author.length > 0 && content.length > 0;
+
+	if (session.status === "fetching") {
+
+		return <LinearProgress color="primary" size="sm" value={25} variant="soft" />;
+	}
 
 	if (session.status === "stored")
 		return (

@@ -30,7 +30,7 @@ export const closeNotification = notification => {
 	return dispatch => {
 
 		clearTimeout(notification.__timeoutId);
-		dispatch(detachNotification(notification))
+		dispatch(detachNotification(notification));
 	};
 };
 

@@ -1,6 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { commentPost, dislikePost, fetchPosts, likePost } from "../../reducers/postReducer";
-import { useEffect } from "react";
+import { commentPost, dislikePost, likePost } from "../../reducers/postReducer";
 import { Link } from "react-router-dom";
 
 import PostContextMenu from "../PostContextMenu";
@@ -9,7 +8,7 @@ import { Avatar, AvatarGroup, Box, Button, Card, Divider, IconButton, Input, Lin
 
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import { useErrorHandler, useNotify, usePosts } from "../../hooks";
+import { useErrorHandler, usePosts } from "../../hooks";
 
 
 const SinglePostSection = ({ id }) => {
@@ -23,7 +22,12 @@ const SinglePostSection = ({ id }) => {
 
 	const post = usePosts(id);
 
+	const interactive = session.status === "stored" && post;
+	const liked = interactive ? post.likes.some(item => item.id === session.data.user.id) : false;
+
 	const handleComment = () => {
+
+		if (!interactive) return;
 
 		dispatch(commentPost({ id, token: session.data.user.token, comment }))
 			.unwrap()
@@ -32,10 +36,9 @@ const SinglePostSection = ({ id }) => {
 		setComment("");
 	};
 
-	const interactive = session.status === "stored" && post;
-	const liked = interactive ? post.likes.some(item => item.id === session.data.user.id) : false;
-
 	const handleLike = () => {
+
+		if (!interactive) return;
 		(
 			liked
 			?

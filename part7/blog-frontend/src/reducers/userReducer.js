@@ -1,45 +1,33 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import userService from "../services/users";
 
+
+export const fetchUsers = createAsyncThunk(
+	"users/fetchStatus",
+	async (action, thunk) => {
+
+		try {
+			return await userService.getAll();
+
+		} catch ({ status, response }) {
+
+			return thunk.rejectWithValue({
+				status,
+				data: response.data
+			});
+		}
+	}
+);
 
 const userListSlice = createSlice({
 
 	name: "users",
 	initialState: [],
-	reducers: {
+	extraReducers (builder) {
 
-		setUsers (state, {payload}) {
-
-			return payload;
-		},
-
-		appendUser (state, {payload}) {
-
-			state.data.push(payload);
-		}
+		builder
+			.addCase(fetchUsers.fulfilled, (state, {payload}) => payload);
 	}
 });
 
-const { setUsers, appendUser } = userListSlice.actions;
 export default userListSlice.reducer;
-
-
-export const fetchUserList = () => {
-
-	return async dispatch => {
-
-		const res = await userService.getAll();
-
-		dispatch(setUsers(res));
-	};
-};
-
-export const pushToUserList = user => {
-
-	return async dispatch => {
-
-		const res = await userService.create(user);
-
-		dispatch(appendUser(res));
-	};
-};

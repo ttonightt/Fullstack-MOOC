@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
-import { Button, AvatarGroup, Avatar, Stack, Card, Box, Typography, IconButton } from '@mui/joy';
+import { AvatarGroup, Avatar, Stack, Card, Box, Typography, IconButton } from '@mui/joy';
 import { dislikePost, likePost } from "../reducers/postReducer";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
@@ -21,6 +21,8 @@ export const Post = ({ post }) => {
 	const liked = interactive ? post.likes.some(item => item.id === session.data.user.id) : false;
 
 	const handleLike = () => {
+
+		if (!interactive) return;
 		(
 			liked
 			?

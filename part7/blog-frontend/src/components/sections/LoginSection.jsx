@@ -1,15 +1,17 @@
 import { useMemo, useState } from "react";
 import { loginUser } from "../../reducers/seshReducer";
 import { useDispatch } from "react-redux";
-import { useNotify } from "../../hooks";
-import { useNavigate, useLocation } from "react-router-dom";
-import { Box, Button, Card, Input } from "@mui/joy";
+import { useErrorHandler, useNotify } from "../../hooks";
+import { useNavigate } from "react-router-dom";
+import { Button, Card, Input } from "@mui/joy";
 
 const LoginSection = () => {
 
 	const dispatch = useDispatch();
 	const notify = useNotify();
 	const navigate = useNavigate();
+
+	const errorHandler = useErrorHandler();
 
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
@@ -25,11 +27,7 @@ const LoginSection = () => {
 
 				navigate("/posts");
 			})
-			.catch(e => {
-
-				if (e.status === 401)
-					notify.error("Wrong credentials!");
-			});
+			.catch(errorHandler);
 	};
 
 	return (<>

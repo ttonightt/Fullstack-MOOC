@@ -1,8 +1,9 @@
 import { useDispatch, useSelector } from "react-redux";
-import { triggerNotification, appendNotification } from "../reducers/notificationReducer";
+import { triggerNotification } from "../reducers/notificationReducer";
 import { fetchPosts } from "../reducers/postReducer";
 import { useEffect } from "react";
 import { logoutUser } from "../reducers/seshReducer";
+import { fetchUsers } from "../reducers/userReducer";
 
 export const useNotify = () => {
 
@@ -47,7 +48,6 @@ export const useNotify = () => {
 
 export const usePosts = id => {
 
-	const notify = useNotify();
 	const dispatch = useDispatch();
 
 	const posts = useSelector(state => state.posts);
@@ -66,13 +66,36 @@ export const usePosts = id => {
 
 		dispatch(fetchPosts())
 			.unwrap()
-			.catch(e => {
-
-				notify.confirm.error("No connection! Try again in a while");
-			});
+			.catch(errorHandler);
 	}, []);
 
 	return id ? post : posts;
+};
+
+export const useUsers = id => {
+
+	const dispatch = useDispatch();
+
+	const users = useSelector(state => state.users);
+	const user = users ?.find(item => item.id === id);
+
+	const errorHandler = useErrorHandler();
+
+	useEffect(() => {
+
+		if (id && users && !user)
+			errorHandler("Unknown endpoint!");
+
+	}, [users ?.length || 0]);
+
+	useEffect(() => {
+
+		dispatch(fetchUsers())
+			.unwrap()
+			.catch(errorHandler);
+	}, []);
+
+	return id ? user : users;
 };
 
 export const useErrorHandler = () => {
@@ -88,28 +111,31 @@ export const useErrorHandler = () => {
 			return;
 		};
 
-		if (e.data.error.includes("token has expired")) {
+		if (e.status === 500) {
 
-			notify.confirm.error("Your login session passed over, please log in again");
-			dispatch(logoutUser());
+			notify.confirm.error("No connection with server! Please try again in a while");
 			return;
-		};
+		}
+
+		if (e.status === 401) {
+
+			if (e.data.error.includes("invalid token")) {
+
+				notify.confirm.error("Invalid user token! Log in again please");
+				dispatch(logoutUser());
+				return;
+			}
+
+			if (e.data.error.includes("token has expired")) {
+
+				notify.confirm.error("Your login session passed over, please log in again");
+				dispatch(logoutUser());
+				return;
+			};
+
+			notify.error("Wrong credentials!");
+			return;
+		}
+
 	};
 };
-
-//export const useSession = () => {
-
-//	const session = useSelector(state => state.session);
-
-//	const errorHandler = useErrorHandler();
-
-//	useEffect(() => {
-
-//		if (session.status === "stored")
-//			dispatch(checkUser())
-//				.unwrap()
-//				.catch(errorHandler);
-//	}, []);
-
-//	return { status: session.status, user: session.data ?.user };
-//};

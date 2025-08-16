@@ -24,7 +24,7 @@ const App = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 
-	console.log("App");
+	//console.log("App");
 
 	useEffect(() => {
 
@@ -83,7 +83,7 @@ const App = () => {
 			</Sheet>
 			<Stack sx={{ py: "2em", justifyContent: "center", alignItems: "center", flexGrow: 1 }}>
 				<Routes>
-					{/*<Route path="/" element={} />*/}
+					<Route path="/" element={<Pages.Root />} />
 					<Route path="/login" element={<Pages.Login/>} />
 					<Route path="/users" element={<Pages.UserList/>} />
 					<Route path="/posts" element={<Pages.PostList/>} />

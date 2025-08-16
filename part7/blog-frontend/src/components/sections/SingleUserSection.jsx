@@ -1,23 +1,13 @@
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchUserList } from "../../reducers/userReducer";
 import { Link } from "react-router-dom";
 import { Avatar, Box, Card, Divider, Stack, Typography } from "@mui/joy";
 
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
-import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
+import { useUsers } from "../../hooks";
 
 
 const SingleUserSection = ({ id }) => {
 
-	const user = useSelector(state => state.users.find(item => item.id === id));
-	const dispatch = useDispatch();
-
-	useEffect(() => {
-
-		if (!user) 
-			dispatch(fetchUserList());
-	}, []);
+	const user = useUsers(id);
 
 	if (user) {
 
