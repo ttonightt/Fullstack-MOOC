@@ -39,7 +39,7 @@ const PostListSection = () => {
 		return (
 			<Box>
 				<Header setSortType={setSortType} />
-				<Typography ml="1.25rem" sx={{ opacity: 0.2 }} level="h2">No posts yet...</Typography>
+				<Typography ml="1.25rem" sx={{ opacity: 0.35 }} level="h2">No posts yet...</Typography>
 			</Box>
 		);
 

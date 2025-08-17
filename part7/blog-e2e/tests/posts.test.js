@@ -19,27 +19,6 @@ const initUsers = [
 	}
 ];
 
-const initPosts = [
-	{
-		title: "Post 1",
-		author: "Author 1",
-		content: "Content 1",
-		__user__: 0
-	},
-	{
-		title: "Post 2",
-		author: "Author 2",
-		content: "Content 2",
-		__user__: 1
-	},
-	{
-		title: "Post 3",
-		author: "Author 3",
-		content: "Content 3",
-		__user__: 2
-	}
-];
-
 
 beforeAll("request", async ({ request }) => {
 
@@ -51,22 +30,10 @@ beforeAll("request", async ({ request }) => {
 		expect(issue.ok()).toBeTruthy();
 	}
 
-	for (const post of initPosts) {
+	const res = await request.get("/api/users");
+	const json = await res.json();
 
-		const res = await request.post("/api/login", { data: initUsers[post.__user__] });
-		const json = await res.json();
-
-		const issue = await request.post("/api/posts", { data: post, headers: { Authorization: `Bearer ${json.token}` } });
-
-		console.log(await issue.json());
-		expect(issue.ok()).toBeTruthy();
-	}
-
-	const users = await ( await request.get("/api/users") ).json();
-	const posts = await ( await request.get("/api/posts") ).json();
-
-	console.log(users.map( ({ posts, username, name }) => ({ username, name, posts: posts.length }) ));
-	console.log(posts.map( ({ title, author, user, content }) => ({ title, author, user: user.username, content }) ));
+	console.log(json.map( ({posts, username }) => ({ username, posts: posts.length }) ));
 });
 
 beforeEach(async ({ page }) => {

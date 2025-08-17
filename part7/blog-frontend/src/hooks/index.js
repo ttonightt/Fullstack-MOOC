@@ -58,7 +58,7 @@ export const usePosts = id => {
 	useEffect(() => {
 
 		if (id && posts && !post)
-			errorHandler("Unknown endpoint!");
+			errorHandler(204);
 
 	}, [posts ?.length || 0]);
 
@@ -84,7 +84,7 @@ export const useUsers = id => {
 	useEffect(() => {
 
 		if (id && users && !user)
-			errorHandler("Unknown endpoint!");
+			errorHandler(204);
 
 	}, [users ?.length || 0]);
 
@@ -105,16 +105,14 @@ export const useErrorHandler = () => {
 
 	return e => {
 
-		if (e === "Unknown endpoint!") {
+		if (e === 204) {
 
-			notify.confirm.error("Unknown endpoint!");
-			return;
+			throw { status: 204, statusText: "No content" };
 		};
 
 		if (e.status === 500) {
 
-			notify.confirm.error("No connection with server! Please try again in a while");
-			return;
+			throw { status: 500, statusText: "No connection with the server" };
 		}
 
 		if (e.status === 401) {

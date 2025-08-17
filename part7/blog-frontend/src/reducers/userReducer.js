@@ -22,7 +22,7 @@ export const fetchUsers = createAsyncThunk(
 const userListSlice = createSlice({
 
 	name: "users",
-	initialState: [],
+	initialState: null,
 	extraReducers (builder) {
 
 		builder

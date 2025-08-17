@@ -58,6 +58,7 @@ const NewPostSection = () => {
 				}}
 			>
 				<Accordion
+					data-testid="newpost-root"
 					expanded={expanded}
 					sx={{ p: 0 }}
 				>

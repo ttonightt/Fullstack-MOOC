@@ -1,13 +1,11 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useErrorHandler, useNotify } from "./hooks";
-import { Route, Routes, Link, useNavigate, useLocation } from "react-router-dom";
+import { useErrorHandler } from "./hooks";
+import { Link, useNavigate, useLocation, Outlet } from "react-router-dom";
 
 import { logoutUser, checkUser } from "./reducers/seshReducer";
 
 import { Button, ButtonGroup, Sheet, Stack, Typography, Avatar, Box, LinearProgress } from "@mui/joy";
-
-import * as Pages from "./components/Pages";
 
 
 const tabs = [
@@ -24,7 +22,7 @@ const App = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 
-	//console.log("App");
+	console.log("App");
 
 	useEffect(() => {
 
@@ -64,7 +62,7 @@ const App = () => {
 						{session.status === "empty" &&
 
 							<Link to="/login">
-								<Button>Log In</Button>
+								<Button data-testid="session-login">Log In</Button>
 							</Link>
 						}
 						{session.status === "stored" &&
@@ -72,24 +70,21 @@ const App = () => {
 							<Stack spacing={1} direction="row" sx={{ alignItems: "center" }}>
 								<Avatar alt={session.data.user.username} src={`/public/avatars/${session.data.user.username}.png`} />
 								<Box>
-									<Typography lineHeight="1.25em" level="body-sm" fontWeight="lg">{session.data.user.name}</Typography>
-									<Typography lineHeight="1.25em" level="body-sm">@{session.data.user.username}</Typography>
+									<Typography lineHeight="1.25em" level="body-sm" fontWeight="lg">
+										{session.data.user.name}
+									</Typography>
+									<Typography lineHeight="1.25em" level="body-sm" data-testid="session-username">
+										@{session.data.user.username}
+									</Typography>
 								</Box>
-								<Button onClick={handleLogout}>Log Out</Button>
+								<Button onClick={handleLogout} data-testid="session-logout">Log Out</Button>
 							</Stack>
 						}
 					</Box>
 				</Stack>
 			</Sheet>
 			<Stack sx={{ py: "2em", justifyContent: "center", alignItems: "center", flexGrow: 1 }}>
-				<Routes>
-					<Route path="/" element={<Pages.Root />} />
-					<Route path="/login" element={<Pages.Login/>} />
-					<Route path="/users" element={<Pages.UserList/>} />
-					<Route path="/posts" element={<Pages.PostList/>} />
-					<Route path="/users/:id" element={<Pages.UserProfile/>} />
-					<Route path="/posts/:id" element={<Pages.Post/>} />
-				</Routes>
+				<Outlet />
 			</Stack>
 		</Stack>
 	);

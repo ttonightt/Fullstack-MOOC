@@ -1,5 +1,6 @@
-import { useNavigate, useParams } from "react-router-dom";
-import { Box } from "@mui/joy";
+import { Link, useNavigate, useParams, useRouteError } from "react-router-dom";
+import { Box, Button, Stack, Typography } from "@mui/joy";
+import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
 
 import LoginSection from "./sections/LoginSection";
 import UserListSection from "./sections/UserListSection";
@@ -26,7 +27,21 @@ export const Root = () => {
 			navigate("/login");
 		}
 	});
+};
 
+export const ErrorPage = () => {
+
+	const err = useRouteError();
+
+	return (
+		<Stack direction="column" sx={{ alignItems: "center", justifyContent: "center", height: "60vh" }}>
+			<Typography level="h1" fontSize="4rem">{err.status || "Unknown Error"}</Typography>
+			<Typography level="h4">{err.statusText}</Typography>
+			<Link to="/">
+				<Button variant="soft" size="sm" sx={{ mt: "1em" }} endDecorator={<ArrowOutwardIcon fontSize="small" />}>Home Page</Button>
+			</Link>
+		</Stack>
+	);
 };
 
 export const UserList = () => (
