@@ -30,7 +30,7 @@ export const closeNotification = notification => {
 	return dispatch => {
 
 		clearTimeout(notification.__timeoutId);
-		dispatch(detachNotification(notification));
+		dispatch(detachNotification(notification.__notificationId));
 	};
 };
 
@@ -55,6 +55,7 @@ export const triggerNotification = (message, { timeout, type, confirmation }) =>
 			const timeoutId = setTimeout(() => {
 
 				dispatch(detachNotification(id));
+				console.log("TIMEOUT");
 			}, timeout);
 
 			Object.defineProperty(notification, "__timeoutId", {

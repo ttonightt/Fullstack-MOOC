@@ -36,7 +36,7 @@ const Notification = ({notificationData}) => {
 				<Button
 					sx={{ borderRadius: "sm", px: "0.5em", py: "0.4em", lineHeight: "1em", minHeight: 0 }}
 					color={alertProps.color}
-					onClick={() => dispatch(closeNotification(notificationData.__notificationId))}
+					onClick={() => dispatch(closeNotification(notificationData))}
 				>Ok</Button>
 		});
 

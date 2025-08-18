@@ -13,19 +13,19 @@ export const useNotify = () => {
 	return {
 		confirm: {
 
-			success (message) {
+			success (message, timeout) {
 
 				console.log(message);
 
 				if (!notifications.some(item => item.message === message))
-					dispatch(triggerNotification(message.toString(), { type: "success", confirmation: true }));
+					dispatch(triggerNotification(message.toString(), { type: "success", timeout, confirmation: true }));
 			},
-			error (message) {
+			error (message, timeout) {
 
 				console.error(message);
 
 				if (!notifications.some(item => item.message === message))
-					dispatch(triggerNotification(message.toString(), { type: "error", confirmation: true }));
+					dispatch(triggerNotification(message.toString(), { type: "error", timeout, confirmation: true }));
 			}
 		},
 		success (message) {
