@@ -3,8 +3,8 @@ import { Alert, Button } from "@mui/joy";
 import ReportIcon from "@mui/icons-material/Report";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import InfoIcon from "@mui/icons-material/Info";
-import { useDispatch } from "react-redux";
-import { closeNotification } from "../reducers/notificationReducer";
+import { useContext } from "react";
+import { NotificationContext } from "./NotificationProvider";
 
 const style = {
 	marginTop: "1em",
@@ -15,7 +15,7 @@ const Notification = ({notificationData}) => {
 
 	const {message, type, confirmation} = notificationData;
 
-	const dispatch = useDispatch();
+	const { closeNotification } = useContext(NotificationContext);
 
 	const alertProps = {};
 
@@ -36,7 +36,7 @@ const Notification = ({notificationData}) => {
 				<Button
 					sx={{ borderRadius: "sm", px: "0.5em", py: "0.4em", lineHeight: "1em", minHeight: 0 }}
 					color={alertProps.color}
-					onClick={() => dispatch(closeNotification(notificationData.__notificationId))}
+					onClick={() => closeNotification(notificationData)}
 				>Ok</Button>
 		});
 

@@ -22,7 +22,7 @@ const App = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 
-	console.log("App");
+	//console.log("App");
 
 	useEffect(() => {
 

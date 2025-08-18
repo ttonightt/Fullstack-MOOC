@@ -1,47 +1,46 @@
 import { useDispatch, useSelector } from "react-redux";
-import { triggerNotification } from "../reducers/notificationReducer";
 import { fetchPosts } from "../reducers/postReducer";
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { logoutUser } from "../reducers/seshReducer";
 import { fetchUsers } from "../reducers/userReducer";
+import { NotificationContext } from "../components/NotificationProvider";
 
 export const useNotify = () => {
 
-	const notifications = useSelector(state => state.notification);
-	const dispatch = useDispatch();
+	const {notifications, triggerNotification} = useContext(NotificationContext);
 
 	return {
 		confirm: {
 
-			success (message) {
+			success (message, timeout) {
 
 				console.log(message);
 
 				if (!notifications.some(item => item.message === message))
-					dispatch(triggerNotification(message.toString(), { type: "success", confirmation: true }));
+					triggerNotification(message.toString(), { type: "success", timeout, confirmation: true });
 			},
-			error (message) {
+			error (message, timeout) {
 
 				console.error(message);
 
 				if (!notifications.some(item => item.message === message))
-					dispatch(triggerNotification(message.toString(), { type: "error", confirmation: true }));
+					triggerNotification(message.toString(), { type: "error", timeout, confirmation: true });
 			}
 		},
 		success (message) {
 
 			console.log(message);
-			dispatch(triggerNotification(message.toString(), { timeout: 5000, type: "success" }));
+			triggerNotification(message.toString(), { timeout: 5000, type: "success" });
 		},
 		log (message) {
 
 			console.log(message);
-			dispatch(triggerNotification(message.toString(), { timeout: 5000, type: "info" }));
+			triggerNotification(message.toString(), { timeout: 5000, type: "info" });
 		},
 		error (message) {
 
 			console.error(message);
-			dispatch(triggerNotification(message.toString(), { timeout: 5000, type: "error" }));
+			triggerNotification(message.toString(), { timeout: 5000, type: "error" });
 		}
 	};
 };
@@ -54,8 +53,6 @@ export const usePosts = id => {
 	const post = posts ?.find(item => item.id === id);
 
 	const errorHandler = useErrorHandler();
-
-	console.log(id, posts, post);
 
 	useEffect(() => {
 
