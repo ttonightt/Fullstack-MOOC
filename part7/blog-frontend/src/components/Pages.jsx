@@ -34,7 +34,7 @@ export const ErrorPage = () => {
 	const err = useRouteError();
 
 	return (
-		<Stack direction="column" sx={{ alignItems: "center", justifyContent: "center", height: "60vh" }}>
+		<Stack data-testid="error-page" direction="column" sx={{ alignItems: "center", justifyContent: "center", height: "60vh" }}>
 			<Typography level="h1" fontSize="4rem">{err.status || "Unknown Error"}</Typography>
 			<Typography level="h4">{err.statusText}</Typography>
 			<Link to="/">

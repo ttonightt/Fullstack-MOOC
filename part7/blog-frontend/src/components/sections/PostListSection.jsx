@@ -54,7 +54,7 @@ const PostListSection = () => {
 	}
 
 	return (
-		<Box>
+		<Box data-testid="postlist-root">
 			<Header setSortType={setSortType} />
 			{
 				sorted.map(post => 

@@ -51,10 +51,10 @@ const ContextMenu = ({ id }) => {
 
 	return (<>
 		<Dropdown>
-			<MenuButton disabled={!interactive} sx={{ px: "0.5em" }} variant="plain">
+			<MenuButton data-testid="post-menu-btn" disabled={!interactive} sx={{ px: "0.5em" }} variant="plain">
 				<MoreHorizRoundedIcon />
 			</MenuButton>
-			<Menu>
+			<Menu data-testid="post-menu-opts">
 				<MenuItem disabled={!interactive} onClick={handleResetComments}>Reset Comments</MenuItem>
 				<MenuItem disabled={!interactive} onClick={handleDelete}>Delete Post</MenuItem>
 			</Menu>

@@ -1,3 +1,4 @@
+const { expect } = require("@playwright/test");
 const setup = require("@playwright/test").test;
 
 
@@ -40,7 +41,7 @@ const initPosts = [
 	}
 ];
 
-setup("Init DB", async () => {
+setup("Init DB", async ({ request }) => {
 
 	await request.delete("/api/test/reset");
 
@@ -67,3 +68,6 @@ setup("Init DB", async () => {
 	console.log(users.map( ({ posts, username, name }) => ({ username, name, posts: posts.length }) ));
 	console.log(posts.map( ({ title, author, user, content }) => ({ title, author, user: user.username, content }) ));
 });
+
+
+module.exports = { initPosts, initUsers };

@@ -35,7 +35,7 @@ export const Post = ({ post }) => {
 	};
 
 	return (
-		<Card size="sm" sx={{ marginBottom: "1em", pl: "1.25em" }}>
+		<Card size="sm" sx={{ marginBottom: "1em", pl: "1.25em" }} data-testid=".postlist-post">
 			<Stack direction="row" sx={{ flexWrap: "nowrap", justifyContent: "space-between", alignItems: "center" }}>
 				<Typography
 					textOverflow="ellipsis"
@@ -53,13 +53,13 @@ export const Post = ({ post }) => {
 						{
 							post.likes.length > 4
 							&&
-							<Avatar size="sm">
+							<Avatar data-testid="post-like-user" size="sm">
 								+{post.likes.length - 4}
 							</Avatar>
 						}
 						{
 							post.likes.slice(0, Math.min(4, post.likes.length)).map(item => 
-								<Avatar size="sm" key={item.id} alt={item.username} src={`/public/avatars/${item.username}.png`} />
+								<Avatar data-testid="post-like-user" size="sm" key={item.id} alt={item.username} src={`/public/avatars/${item.username}.png`} />
 							)
 						}
 					</AvatarGroup>

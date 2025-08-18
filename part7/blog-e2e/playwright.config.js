@@ -25,6 +25,7 @@ export default defineConfig({
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
+  expect: { timeout: 10000 },
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL: "http://localhost:5173",
@@ -37,7 +38,7 @@ export default defineConfig({
   projects: [
     {
       name: "db init",
-      testMatch: /db\.setup\.js/
+      testMatch: "db.setup.js"
     },
     {
       name: 'chromium',
@@ -48,11 +49,13 @@ export default defineConfig({
     {
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
+      dependencies: ["db init"]
     },
 
     {
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
+      dependencies: ["db init"]
     },
 
     /* Test against mobile viewports. */

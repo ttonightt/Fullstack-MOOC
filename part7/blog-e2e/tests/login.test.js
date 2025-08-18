@@ -3,7 +3,7 @@ const { describe, test, expect, beforeEach, beforeAll, afterEach } = require("@p
 
 beforeEach(async ({ page }) => {
 
-	await page.goto("/login");
+	await page.goto("/");
 });
 
 test("NewPost section renders children when logged in", async ({ page }) => {

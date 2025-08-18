@@ -55,12 +55,14 @@ export const usePosts = id => {
 
 	const errorHandler = useErrorHandler();
 
+	console.log(id, posts, post);
+
 	useEffect(() => {
 
 		if (id && posts && !post)
 			errorHandler(204);
 
-	}, [posts ?.length || 0]);
+	}, [posts ?.length]);
 
 	useEffect(() => {
 
@@ -86,7 +88,7 @@ export const useUsers = id => {
 		if (id && users && !user)
 			errorHandler(204);
 
-	}, [users ?.length || 0]);
+	}, [users ?.length]);
 
 	useEffect(() => {
 

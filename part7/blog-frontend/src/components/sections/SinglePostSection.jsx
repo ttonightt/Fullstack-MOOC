@@ -106,7 +106,7 @@ const SinglePostSection = ({ id }) => {
 					{post.content}
 				</Typography>
 			</Card>
-			<Card variant="soft" color="warning" sx={{ p: 0, gap: 0 }}>
+			<Card data-testid="comment-root" variant="soft" color="warning" sx={{ p: 0, gap: 0 }}>
 				<Stack direction="row">
 					<Typography level="h4" color="warning" p="0.75em 1em 0.25em 1em" flexGrow={1}>Share your point...</Typography>
 					<Button variant={postable ? "solid" : "plain"} disabled={!postable} sx={{ m: "0.4em" }} color="warning" onClick={handleComment}>Comment</Button>
@@ -121,7 +121,7 @@ const SinglePostSection = ({ id }) => {
 					onChange={e => setComment(e.target.value)}
 				/>
 			</Card>
-			<Card variant="plain" sx={{ p: "0.5em 1.25rem" }}>
+			<Card data-testid="commentlist-root" variant="plain" sx={{ p: "0.5em 1.25rem" }}>
 				{
 					post.comments.length === 0
 					?

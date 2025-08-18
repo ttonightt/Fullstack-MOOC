@@ -1,0 +1,130 @@
+const { describe, test, expect, beforeEach, beforeAll, afterEach } = require("@playwright/test");
+const { initPosts } = require("./db.setup");
+
+
+beforeEach(async ({ page }) => {
+
+	await page.goto("/login");
+
+	await expect(page).toHaveURL("/login");
+
+	await page.getByTestId("login-username").getByRole("textbox").fill("safranek");
+	await page.getByTestId("login-password").getByRole("textbox").fill("safranek123");
+	await page.getByTestId("login-submit").click();
+
+	await expect(page).toHaveURL("/posts");
+});
+
+test("Posts are generated in right number and order", async ({ page }) => {
+
+	const postlistLoc = page.getByTestId("postlist-root");
+
+	const posts = await postlistLoc.getByTestId(".postlist-post").all();
+	expect(posts).toHaveLength(initPosts.length);
+
+	for (let i = 0; i < posts.length; i++) {
+
+		console.log(initPosts[i]);
+
+		await expect(posts[i]).toHaveText(RegExp(initPosts[i].title));
+		await expect(posts[i]).toHaveText(RegExp(initPosts[i].author));
+	}
+});
+
+test("Post can be liked by authorized user", async ({ page }) => {
+
+	const postlistLoc = page.getByTestId("postlist-root");
+
+	const posts = await postlistLoc.getByTestId(".postlist-post").all();
+
+	for (const post of posts) {
+
+		await post.getByRole("button").click();
+
+		const likeUserLoc = post.getByTestId("post-like-user");
+
+		expect(likeUserLoc).toBeVisible();
+	}
+});
+
+test("Post can be opened", async ({ page }) => {
+
+	await page
+		.getByTestId("postlist-root")
+		.getByRole("link", { name: "Post 1" })
+		.click();
+
+	await expect(page).toHaveURL(/\/posts\/.+/);
+});
+
+test("Post can be commented by authorized user", async ({ page }) => {
+
+	await page
+		.getByTestId("postlist-root")
+		.getByRole("link", { name: "Post 1" })
+		.click();
+
+	await expect(page).toHaveURL(/\/posts\/.+/);
+
+	const commentLoc = page.getByTestId("comment-root").getByRole("button");
+
+	page.getByTestId("comment-root").getByRole("textbox").fill("Comment 1");
+
+	await expect(commentLoc).toBeEnabled();
+	await commentLoc.click();
+
+	const comments = await page.getByTestId("commentlist-root").locator("div").all();
+
+	expect(comments).toHaveLength(1);
+	await expect(comments[0]).toHaveText("Comment 1");
+});
+
+test("Unknown endpoint throw 404", async ({ page }) => {
+
+	await page.goto("/post");
+
+	await expect(page.getByTestId("error-page")).toHaveText(/404/);
+});
+
+test("Unknown post throw 204", async ({ page }) => {
+
+	await page.goto("/posts/7243g23276d623");
+
+	await expect(page.getByTestId("error-page")).toHaveText(/204/);
+});
+
+test("User can reset comments of their own post", async ({ page }) => {
+
+	const postLoc = page.getByTestId(".postlist-post").filter({ has: page.getByRole("link", { name: "@safranek" }) });
+
+	await postLoc.getByRole("link", { name: /Post/ }).click();
+
+	await page.getByTestId("post-menu-btn").click();
+
+	const menuLoc = page.getByTestId("post-menu-opts");
+	await expect(menuLoc).toBeVisible();
+
+	await menuLoc.getByRole("menuitem", { name: "Reset Comments" }).click();
+
+	await expect(page.getByTestId("commentlist-root")).toHaveText("No comments");
+});
+
+test("User can delete their own post", async ({ page }) => {
+
+	const postLoc = page.getByTestId(".postlist-post").filter({ has: page.getByRole("link", { name: "@safranek" }) });
+
+	await postLoc.getByRole("link", { name: /Post/ }).click();
+
+	await page.getByTestId("post-menu-btn").click();
+
+	const menuLoc = page.getByTestId("post-menu-opts");
+	await expect(menuLoc).toBeVisible();
+
+	await menuLoc.getByRole("menuitem", { name: "Delete Post" }).click();
+
+	await expect(page).toHaveURL("/posts");
+
+	const posts = await page.getByTestId(".postlist-post").all();
+
+	expect(posts).toHaveLength(2);
+});
