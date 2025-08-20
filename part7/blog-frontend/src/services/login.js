@@ -2,14 +2,14 @@ import axios from "axios";
 
 const baseUrl = "/api/login";
 
-const login = async credits => {
+export const login = async credits => {
 
 	const res = await axios.post(baseUrl, credits);
 
 	return res.data;
 };
 
-const check = async token => {
+export const check = async token => {
 
 	const config = {
 		headers: {
@@ -21,5 +21,3 @@ const check = async token => {
 
 	return res.data;
 };
-
-export default {login, check};

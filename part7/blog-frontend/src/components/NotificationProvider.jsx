@@ -8,8 +8,6 @@ const NotificationProvider = ({ children }) => {
 
 	const [notifications, setNotifications] = useState([]);
 
-	console.log("NotificationProvider");
-
 	const triggerNotification = (message, { timeout, type, confirmation }) => {
 
 		const id = index++;

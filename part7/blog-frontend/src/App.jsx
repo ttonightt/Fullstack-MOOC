@@ -1,9 +1,6 @@
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useErrorHandler } from "./hooks";
+import { useErrorHandler, useSession } from "./hooks";
 import { Link, useNavigate, useLocation, Outlet } from "react-router-dom";
-
-import { logoutUser, checkUser } from "./reducers/seshReducer";
 
 import { Button, ButtonGroup, Sheet, Stack, Typography, Avatar, Box, LinearProgress } from "@mui/joy";
 
@@ -15,26 +12,27 @@ const tabs = [
 
 const App = () => {
 
-	const session = useSelector(state => state.session);
-	const dispatch = useDispatch();
+	const [ session, { login, logout }] = useSession();
 
 	const errorHandler = useErrorHandler();
 	const navigate = useNavigate();
 	const location = useLocation();
 
+	console.log(session);
+
 	//console.log("App");
 
-	useEffect(() => {
+	//useEffect(() => {
 
-		if (session.status === "stored")
-			dispatch(checkUser())
-				.unwrap()
-				.catch(errorHandler);
-	}, []);
+	//	if (session.status === "stored")
+	//		dispatch(checkUser())
+	//			.unwrap()
+	//			.catch(errorHandler);
+	//}, []);
 
 	const handleLogout = () => {
 
-		dispatch(logoutUser());
+		logout();
 		navigate("/login");
 	};
 
@@ -68,13 +66,13 @@ const App = () => {
 						{session.status === "stored" &&
 
 							<Stack spacing={1} direction="row" sx={{ alignItems: "center" }}>
-								<Avatar alt={session.data.user.username} src={`/public/avatars/${session.data.user.username}.png`} />
+								<Avatar alt={session.data.username} src={`/public/avatars/${session.data.username}.png`} />
 								<Box>
 									<Typography lineHeight="1.25em" level="body-sm" fontWeight="lg">
-										{session.data.user.name}
+										{session.data.name}
 									</Typography>
 									<Typography lineHeight="1.25em" level="body-sm" data-testid="session-username">
-										@{session.data.user.username}
+										@{session.data.username}
 									</Typography>
 								</Box>
 								<Button onClick={handleLogout} data-testid="session-logout">Log Out</Button>

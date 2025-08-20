@@ -2,20 +2,16 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 import { AvatarGroup, Avatar, Stack, Card, Box, Typography, IconButton } from '@mui/joy';
-import { dislikePost, likePost } from "../reducers/postReducer";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import { useErrorHandler } from "../hooks";
+import { useErrorHandler, usePost } from "../hooks";
 
 
-export const Post = ({ post }) => {
+export const Post = ({ id }) => {
 
 	const session = useSelector(state => state.session);
-	const dispatch = useDispatch();
-
-	const errorHandler = useErrorHandler();
-
-	const { id } = post;
+	
+	const [post, service] = usePost(id);
 	
 	const interactive = session.status === "stored";
 	const liked = interactive ? post.likes.some(item => item.id === session.data.user.id) : false;
@@ -23,15 +19,12 @@ export const Post = ({ post }) => {
 	const handleLike = () => {
 
 		if (!interactive) return;
-		(
-			liked
-			?
-			dispatch(dislikePost({id, token: session.data.user.token}))
-			:
-			dispatch(likePost({id, token: session.data.user.token}))
-		)
-			.unwrap()
-			.catch(errorHandler);
+
+		if (liked) {
+
+			service.dislike({id, token: session.data.user.token});
+		} else
+			service.like({id, token: session.data.user.token});
 	};
 
 	return (

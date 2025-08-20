@@ -4,7 +4,6 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
-import { createPost } from "../../reducers/postReducer";
 import { useErrorHandler, useNotify } from "../../hooks";
 
 const NewPostSection = () => {

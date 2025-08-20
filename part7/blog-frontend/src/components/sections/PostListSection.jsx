@@ -1,11 +1,9 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 
-import { fetchPosts } from "../../reducers/postReducer";
-
 import { Card, Box, Stack, Select, Option, Typography, LinearProgress } from '@mui/joy';
 import { Post } from "../Post";
-import { useNotify, usePosts } from "../../hooks";
+import { usePostList } from "../../hooks";
 
 
 const Header = ({ setSortType }) => (
@@ -23,7 +21,7 @@ const Header = ({ setSortType }) => (
 
 const PostListSection = () => {
 
-	const posts = usePosts();
+	const posts = usePostList();
 
 	const [sortType, setSortType] = useState("mostLiked");
 
@@ -60,7 +58,7 @@ const PostListSection = () => {
 				sorted.map(post => 
 						<Post
 							key={post.id}
-							post={post}
+							id={post.id}
 						/>
 					)
 			}

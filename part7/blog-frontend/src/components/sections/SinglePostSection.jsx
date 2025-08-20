@@ -1,5 +1,4 @@
 import { useDispatch, useSelector } from "react-redux";
-import { commentPost, dislikePost, likePost } from "../../reducers/postReducer";
 import { Link } from "react-router-dom";
 
 import PostContextMenu from "../PostContextMenu";
@@ -8,7 +7,7 @@ import { Avatar, AvatarGroup, Box, Button, Card, Divider, IconButton, Input, Lin
 
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import { useErrorHandler, usePosts } from "../../hooks";
+import { useErrorHandler, usePost } from "../../hooks";
 
 
 const SinglePostSection = ({ id }) => {
@@ -20,7 +19,7 @@ const SinglePostSection = ({ id }) => {
 	const dispatch = useDispatch();
 	const errorHandler = useErrorHandler();
 
-	const post = usePosts(id);
+	const [post, service] = usePost(id);
 
 	const interactive = session.status === "stored" && post;
 	const liked = interactive ? post.likes.some(item => item.id === session.data.user.id) : false;
@@ -29,9 +28,7 @@ const SinglePostSection = ({ id }) => {
 
 		if (!interactive) return;
 
-		dispatch(commentPost({ id, token: session.data.user.token, comment }))
-			.unwrap()
-			.catch(errorHandler);
+		service.comment({ id, token: session.data.user.token, comment });
 
 		setComment("");
 	};
@@ -39,15 +36,12 @@ const SinglePostSection = ({ id }) => {
 	const handleLike = () => {
 
 		if (!interactive) return;
-		(
-			liked
-			?
-			dispatch(dislikePost({id, token: session.data.user.token}))
-			:
-			dispatch(likePost({id, token: session.data.user.token}))
-		)
-			.unwrap()
-			.catch(errorHandler);
+
+		if (liked) {
+
+			service.dislike({id, token: session.data.user.token});
+		} else
+			service.like({id, token: session.data.user.token});
 	};
 
 	const postable = session.status === "stored" && comment.length > 0;

@@ -1,17 +1,11 @@
 import { useMemo, useState } from "react";
-import { loginUser } from "../../reducers/seshReducer";
-import { useDispatch } from "react-redux";
-import { useErrorHandler, useNotify } from "../../hooks";
+import { useErrorHandler, useNotify, useSession } from "../../hooks";
 import { useNavigate } from "react-router-dom";
 import { Button, Card, Input } from "@mui/joy";
 
 const LoginSection = () => {
 
-	const dispatch = useDispatch();
-	const notify = useNotify();
-	const navigate = useNavigate();
-
-	const errorHandler = useErrorHandler();
+	const [ session, { login }] = useSession();
 
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
@@ -19,15 +13,7 @@ const LoginSection = () => {
 
 	const handleSubmit = () => {
 
-		dispatch(loginUser({username, password}))
-			.unwrap()
-			.then(() => {
-
-				notify.success("You logged in successfully!");
-
-				navigate("/posts");
-			})
-			.catch(errorHandler);
+		login(username, password);
 	};
 
 	return (<>
