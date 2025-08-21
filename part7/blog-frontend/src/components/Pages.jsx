@@ -10,11 +10,12 @@ import SinglePostSection from "./sections/SinglePostSection";
 import NewPostSection from "./sections/NewPostSection";
 import { useSelector } from "react-redux";
 import { useEffect } from "react";
+import { useSession } from "../hooks";
 
 
 export const Root = () => {
 
-	const session = useSelector(state => state.session);
+	const session = useSession();
 
 	const navigate = useNavigate();
 

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useErrorHandler, useSession } from "./hooks";
+import { useErrorHandler, useNotify, useSession } from "./hooks";
 import { Link, useNavigate, useLocation, Outlet } from "react-router-dom";
 
 import { Button, ButtonGroup, Sheet, Stack, Typography, Avatar, Box, LinearProgress } from "@mui/joy";
@@ -14,21 +14,10 @@ const App = () => {
 
 	const [ session, { login, logout }] = useSession();
 
-	const errorHandler = useErrorHandler();
 	const navigate = useNavigate();
 	const location = useLocation();
 
-	console.log(session);
-
-	//console.log("App");
-
-	//useEffect(() => {
-
-	//	if (session.status === "stored")
-	//		dispatch(checkUser())
-	//			.unwrap()
-	//			.catch(errorHandler);
-	//}, []);
+	console.log("App");
 
 	const handleLogout = () => {
 

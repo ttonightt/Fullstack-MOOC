@@ -52,7 +52,7 @@ export const usePost = postId => {
 	const notify = useNotify();
 	const errorHandler = useErrorHandler();
 
-	const posts = usePostList();
+	const [posts] = usePostList();
 
 	const post = posts ?.find(item => item.id === postId);
 
@@ -162,6 +162,9 @@ export const usePost = postId => {
 
 export const usePostList = () => {
 
+	const queryClient = useQueryClient();
+	const errorHandler = useErrorHandler();
+
 	const posts = useQuery({
 
 		queryKey: ["posts"],
@@ -171,7 +174,31 @@ export const usePostList = () => {
 
 	}).data;
 
-	return posts;
+	const createMutation = useMutation({
+
+		mutationFn: async ({ post, token }) => {
+
+			return await postService.create(post, token);
+		},
+		onSuccess: post => {
+
+			const _posts = queryClient.getQueryData(["posts"]);
+
+			queryClient.setQueryData( ["posts"], _posts.concat(post) );
+
+			notify.log("Post was added");
+		},
+		onError: e => errorHandler(e.response)
+	});
+
+	return [
+		posts,
+		{
+			create (data) {
+				createMutation.mutate(data);
+			}
+		}
+	];
 };
 
 export const useUsers = id => {
@@ -215,6 +242,8 @@ export const useErrorHandler = () => {
 
 		if (e.status === 401) {
 
+			console.log(e);
+
 			if (e.data.error.includes("invalid token")) {
 
 				notify.confirm.error("Invalid user token! Log in again please");
@@ -227,7 +256,7 @@ export const useErrorHandler = () => {
 				notify.confirm.error("Your login session passed over, please log in again");
 				//dispatch(logoutUser());
 				return;
-			};
+			}
 
 			notify.error("Wrong credentials!");
 			return;
@@ -243,60 +272,78 @@ export const useSession = () => {
 
 	const stored = JSON.parse(window.localStorage.getItem("session"));
 
-	const [status, setStatus] = useState(stored ?.token ? "stored" : "empty");
-
-	const session = useQuery({
+	const sessionState = useQuery({
 
 			queryKey: ["session"],
 			queryFn: async () => {
-				try {
+				
+				const _session = queryClient.getQueryData(["session"]);
 
-					return await sessionService.check(stored.token + "1");
-				} catch (e) {
-					setStatus("empty");
-					errorHandler(e);
+				if (sessionState.data.status !== "stored")
+					return _session;
+
+				console.log("QUERY > refetching");
+				//queryClient.setQueryData(["session"], { data: _session.data, status: "refetching" });
+
+				try {
+					const data = await sessionService.check(stored.token);
+
+					console.log("QUERY > saving");
+					return { data, status: "stored" };
+				}
+				catch (e) {
+
+					console.log("QUERY > draining");
+					errorHandler(e.response);
+					window.localStorage.removeItem("session");
+					return { data: null, status: "empty" };
 				}
 			},
+			initialData: { data: stored, status: stored ?.token ? "stored" : "empty" },
 			retry: false,
-			enabled: !queryClient.getQueryData(["session"]) && status === "stored"
+			staleTime: 2000
 		});
 
 	const loginMutation = useMutation({
-		mutationFn: async credits => {
 
-			await new Promise(resolve => setTimeout(() => resolve(), 3000));
+		mutationFn: sessionService.login,
+		onMutate: () => {
 
-			return await sessionService.login(credits);
+			console.log("MUTATE > fetching");
+			const { data } = queryClient.getQueryData(["session"]);
+
+			queryClient.setQueryData(["session"], { data, status: "fetching" });
 		},
-		onSuccess: async session_ => {
+		onSuccess: session => {
 
-			queryClient.setQueryData(["session"], session_);
-			window.localStorage.setItem("session", JSON.stringify( session_ ));
+			console.log("MUTATE > saving");
+			queryClient.setQueryData(["session"], { data: session, status: "stored" });
+			window.localStorage.setItem("session", JSON.stringify( session ));
 
 			notify.success("You've logged in successfully!");
 		},
 		onError: e => {
 
-			errorHandler(e);
-			setStatus("empty");
+			console.log("MUTATE > draining");
+			const { data } = queryClient.getQueryData(["session"]);
+
+			queryClient.setQueryData(["session"], { data, status: data ? "stored" : "empty" });
+
+			errorHandler(e.response);
 		}
 	});
 
 	return [
+		sessionState.data,
 		{
-			data: session ?.data ?? stored,
-			status
-		},
-		{
-			login (username, password) {
+			async login (username, password) {
 
-				loginMutation.mutate({ username, password });
-				setStatus("fetching");
+				await loginMutation.mutateAsync({ username, password });
 			},
 			logout () {
 
 				window.localStorage.removeItem("session");
-				setStatus("empty");
+				queryClient.setQueryData(["session"], { data: null, status: "empty" });
 			}
 		}
 	];

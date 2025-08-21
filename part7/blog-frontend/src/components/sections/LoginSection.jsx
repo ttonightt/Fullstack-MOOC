@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { useErrorHandler, useNotify, useSession } from "../../hooks";
+import { useState } from "react";
+import { useSession } from "../../hooks";
 import { useNavigate } from "react-router-dom";
 import { Button, Card, Input } from "@mui/joy";
 
@@ -7,13 +7,15 @@ const LoginSection = () => {
 
 	const [ session, { login }] = useSession();
 
-	const [username, setUsername] = useState("");
-	const [password, setPassword] = useState("");
+	const [username, setUsername] = useState("safranek");
+	const [password, setPassword] = useState("safranek123");
 	const [passwordVisibility, setPasswordVisibility] = useState(false);
+
+	const navigate = useNavigate();
 
 	const handleSubmit = () => {
 
-		login(username, password);
+		login(username, password).then(() => navigate("/posts"));
 	};
 
 	return (<>

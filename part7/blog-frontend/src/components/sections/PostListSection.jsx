@@ -1,5 +1,4 @@
-import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { Card, Box, Stack, Select, Option, Typography, LinearProgress } from '@mui/joy';
 import { Post } from "../Post";
@@ -21,7 +20,7 @@ const Header = ({ setSortType }) => (
 
 const PostListSection = () => {
 
-	const posts = usePostList();
+	const [posts] = usePostList();
 
 	const [sortType, setSortType] = useState("mostLiked");
 

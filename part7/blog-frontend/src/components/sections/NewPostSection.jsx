@@ -2,20 +2,20 @@ import { Accordion, AccordionDetails, AccordionSummary, AccordionGroup, IconButt
 import { accordionDetailsClasses } from "@mui/joy/AccordionDetails";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 
-import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
-import { useErrorHandler, useNotify } from "../../hooks";
+import { useErrorHandler, useNotify, usePostList, useSession } from "../../hooks";
 
 const NewPostSection = () => {
 
-	const session = useSelector(state => state.session);
+	const [session] = useSession();
 
-	const dispatch = useDispatch();
+	const [posts, { create }] = usePostList();
+
 	const errorHandler = useErrorHandler();
 	const notify = useNotify();
 
 	const [title, setTitle] = useState("");
-	const [author, setAuthor] = useState(session.status === "stored" ? session.data.user.name : "");
+	const [author, setAuthor] = useState(session.status === "stored" ? session.data.name : "");
 	const [content, setContent] = useState("");
 	const [expanded, setExpanded] = useState(false);
 
@@ -24,16 +24,10 @@ const NewPostSection = () => {
 
 		if (session.status !== "stored") return;
 
-		dispatch(createPost({ post: { title, author, content }, token: session.data.user.token }))
-			.unwrap()
-			.then(() => {
-
-				notify.success("The post was created successfully!");
-			})
-			.catch(errorHandler);
+		create({ post: { title, author, content }, token: session.data.token });
 
 		setTitle("");
-		setAuthor(session.status === "stored" ? session.data.user.name : "");
+		setAuthor(session.status === "stored" ? session.data.name : "");
 		setContent("");
 		setExpanded(false);
 	};

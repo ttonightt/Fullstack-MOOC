@@ -26,7 +26,7 @@ const NotificationProvider = ({ children }) => {
 
 			const timeoutId = setTimeout(() => {
 
-				setNotifications(notifications.filter(item => item.__notificationId !== notification.__notificationId));
+				setNotifications(_notifications => _notifications.filter(item => item.__notificationId !== notification.__notificationId));
 			}, timeout);
 
 			Object.defineProperty(notification, "__timeoutId", {

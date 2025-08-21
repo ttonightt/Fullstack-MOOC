@@ -7,28 +7,25 @@ import { Avatar, AvatarGroup, Box, Button, Card, Divider, IconButton, Input, Lin
 
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import { useErrorHandler, usePost } from "../../hooks";
+import { useErrorHandler, usePost, useSession } from "../../hooks";
 
 
 const SinglePostSection = ({ id }) => {
 
-	const session = useSelector(state => state.session);
+	const [session] = useSession();
 
 	const [comment, setComment] = useState("");
-
-	const dispatch = useDispatch();
-	const errorHandler = useErrorHandler();
 
 	const [post, service] = usePost(id);
 
 	const interactive = session.status === "stored" && post;
-	const liked = interactive ? post.likes.some(item => item.id === session.data.user.id) : false;
+	const liked = interactive ? post.likes.some(item => item.id === session.data.id) : false;
 
 	const handleComment = () => {
 
 		if (!interactive) return;
 
-		service.comment({ id, token: session.data.user.token, comment });
+		service.comment({ id, token: session.data.token, comment });
 
 		setComment("");
 	};
@@ -39,9 +36,9 @@ const SinglePostSection = ({ id }) => {
 
 		if (liked) {
 
-			service.dislike({id, token: session.data.user.token});
+			service.dislike({id, token: session.data.token});
 		} else
-			service.like({id, token: session.data.user.token});
+			service.like({id, token: session.data.token});
 	};
 
 	const postable = session.status === "stored" && comment.length > 0;
