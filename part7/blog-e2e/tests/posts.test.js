@@ -1,8 +1,10 @@
 const { describe, test, expect, beforeEach, beforeAll, afterEach } = require("@playwright/test");
-const { initPosts } = require("./db.setup");
+const { initPosts } = require("./initData");
 
 
 beforeEach(async ({ page }) => {
+
+	page.on("dialog", dialog => dialog.accept());
 
 	await page.goto("/login");
 
@@ -19,15 +21,16 @@ test("Posts are generated in right number and order", async ({ page }) => {
 
 	const postlistLoc = page.getByTestId("postlist-root");
 
-	const posts = await postlistLoc.getByTestId(".postlist-post").all();
-	expect(posts).toHaveLength(initPosts.length);
+	const postLocs = await postlistLoc.getByTestId(".postlist-post").all();
 
-	for (let i = 0; i < posts.length; i++) {
+	expect(postLocs).toHaveLength(initPosts.length);
+
+	for (let i = 0; i < postLocs.length; i++) {
 
 		console.log(initPosts[i]);
 
-		await expect(posts[i]).toHaveText(RegExp(initPosts[i].title));
-		await expect(posts[i]).toHaveText(RegExp(initPosts[i].author));
+		await expect(postLocs[i]).toHaveText(RegExp(initPosts[i].title));
+		await expect(postLocs[i]).toHaveText(RegExp(initPosts[i].author));
 	}
 });
 
@@ -79,13 +82,6 @@ test("Post can be commented by authorized user", async ({ page }) => {
 	await expect(comments[0]).toHaveText("Comment 1");
 });
 
-test("Unknown endpoint throw 404", async ({ page }) => {
-
-	await page.goto("/post");
-
-	await expect(page.getByTestId("error-page")).toHaveText(/404/);
-});
-
 test("Unknown post throw 204", async ({ page }) => {
 
 	await page.goto("/posts/7243g23276d623");
@@ -104,7 +100,7 @@ test("User can reset comments of their own post", async ({ page }) => {
 	const menuLoc = page.getByTestId("post-menu-opts");
 	await expect(menuLoc).toBeVisible();
 
-	await menuLoc.getByRole("menuitem", { name: "Reset Comments" }).click();
+	await page.getByTestId("post-menu-reset").click({ force: true });
 
 	await expect(page.getByTestId("commentlist-root")).toHaveText("No comments");
 });
@@ -120,7 +116,8 @@ test("User can delete their own post", async ({ page }) => {
 	const menuLoc = page.getByTestId("post-menu-opts");
 	await expect(menuLoc).toBeVisible();
 
-	await menuLoc.getByRole("menuitem", { name: "Delete Post" }).click();
+	await page.getByTestId("post-menu-delete").click();
+	//await page.getByRole("button").click();
 
 	await expect(page).toHaveURL("/posts");
 

@@ -12,7 +12,7 @@ test("NewPost section renders children when logged in", async ({ page }) => {
 	await page.getByTestId("login-password").getByRole("textbox").fill("safranek123");
 	await page.getByTestId("login-submit").click();
 
-	await expect(page.getByText("You logged in successfully!")).toBeVisible();
+	await expect(page.getByText("You've logged in successfully!")).toBeVisible();
 	await expect(page).toHaveURL("/posts");
 
 	const usernameLoc = page.getByTestId("session-username");
