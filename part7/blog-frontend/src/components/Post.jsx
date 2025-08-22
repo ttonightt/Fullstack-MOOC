@@ -8,7 +8,7 @@ import { usePost, useSession } from "../hooks";
 
 export const Post = ({ id }) => {
 
-	const [session] = useSession();
+	const [session, { logout }] = useSession();
 
 	const [post, service] = usePost(id);
 	
@@ -21,9 +21,9 @@ export const Post = ({ id }) => {
 
 		if (liked) {
 
-			service.dislike({id, token: session.data.token});
+			service.dislike({id, token: session.data.token}).catch(e => e.response.status === 401 && logout());
 		} else
-			service.like({id, token: session.data.token});
+			service.like({id, token: session.data.token}).catch(e => e.response.status === 401 && logout());
 	};
 
 	return (

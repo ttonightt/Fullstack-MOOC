@@ -12,7 +12,7 @@ import { useErrorHandler, usePost, useSession } from "../../hooks";
 
 const SinglePostSection = ({ id }) => {
 
-	const [session] = useSession();
+	const [session, { logout }] = useSession();
 
 	const [comment, setComment] = useState("");
 
@@ -25,7 +25,7 @@ const SinglePostSection = ({ id }) => {
 
 		if (!interactive) return;
 
-		service.comment({ id, token: session.data.token, comment });
+		service.comment({ id, token: session.data.token, comment }).catch(e => e.response.status === 401 && logout());
 
 		setComment("");
 	};
@@ -36,9 +36,9 @@ const SinglePostSection = ({ id }) => {
 
 		if (liked) {
 
-			service.dislike({id, token: session.data.token});
+			service.dislike({id, token: session.data.token}).catch(e => e.response.status === 401 && logout());
 		} else
-			service.like({id, token: session.data.token});
+			service.like({id, token: session.data.token}).catch(e => e.response.status === 401 && logout());
 	};
 
 	const postable = session.status === "stored" && comment.length > 0;

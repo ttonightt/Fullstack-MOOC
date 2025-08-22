@@ -7,8 +7,8 @@ const LoginSection = () => {
 
 	const [ session, { login }] = useSession();
 
-	const [username, setUsername] = useState("safranek");
-	const [password, setPassword] = useState("safranek123");
+	const [username, setUsername] = useState("");
+	const [password, setPassword] = useState("");
 	const [passwordVisibility, setPasswordVisibility] = useState(false);
 
 	const navigate = useNavigate();

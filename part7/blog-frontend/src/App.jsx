@@ -60,9 +60,11 @@ const App = () => {
 									<Typography lineHeight="1.25em" level="body-sm" fontWeight="lg">
 										{session.data.name}
 									</Typography>
-									<Typography lineHeight="1.25em" level="body-sm" data-testid="session-username">
-										@{session.data.username}
-									</Typography>
+									<Link to={`/users/${session.data.id}`}>
+										<Typography lineHeight="1.25em" level="body-sm" data-testid="session-username">
+											@{session.data.username}
+										</Typography>
+									</Link>
 								</Box>
 								<Button onClick={handleLogout} data-testid="session-logout">Log Out</Button>
 							</Stack>

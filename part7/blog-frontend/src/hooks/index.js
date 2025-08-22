@@ -71,7 +71,7 @@ export const usePost = postId => {
 
 			queryClient.setQueryData( ["posts"], _posts.map(item => item.id === postId ? post_ : item) );
 		},
-		onError: errorHandler
+		onError: e => errorHandler(e.response)
 	});
 
 	const dislikeMutation = useMutation({
@@ -86,7 +86,7 @@ export const usePost = postId => {
 
 			queryClient.setQueryData( ["posts"], _posts.map(item => item.id === postId ? post_ : item) );
 		},
-		onError: errorHandler
+		onError: e => errorHandler(e.response)
 	});
 
 	const commentMutation = useMutation({
@@ -101,7 +101,7 @@ export const usePost = postId => {
 
 			queryClient.setQueryData( ["posts"], _posts.map(item => item.id === postId ? post_ : item) );
 		},
-		onError: errorHandler
+		onError: e => errorHandler(e.response)
 	});
 
 	const removeMutation = useMutation({
@@ -118,7 +118,7 @@ export const usePost = postId => {
 
 			notify.log("Post was successfully deleted!");
 		},
-		onError: errorHandler
+		onError: e => errorHandler(e.response)
 	});
 
 	const resetCommentsMutation = useMutation({
@@ -135,26 +135,45 @@ export const usePost = postId => {
 
 			notify.log("Comments were successfully reseted!");
 		},
-		onError: errorHandler
+		onError: e => errorHandler(e.response)
 	});
+
+	useEffect(() => {
+
+		if (likeMutation.isError) errorHandler(likeMutation.error.response);
+
+		if (dislikeMutation.isError) errorHandler(dislikeMutation.error.response);
+
+		if (commentMutation.isError) errorHandler(commentMutation.error.response);
+
+		if (removeMutation.isError) errorHandler(removeMutation.error.response);
+
+		if (resetCommentsMutation.isError) errorHandler(resetCommentsMutation.error.response);
+	}, [
+		likeMutation.isError,
+		dislikeMutation.isError,
+		commentMutation.isError,
+		removeMutation.isError,
+		resetCommentsMutation.isError
+	]);
 
 	return [
 		post,
 		{
 			like (data) {
-				likeMutation.mutate(data);
+				return likeMutation.mutateAsync(data);
 			},
 			dislike (data) {
-				dislikeMutation.mutate(data);
+				return dislikeMutation.mutateAsync(data);
 			},
 			comment (data) {
-				commentMutation.mutate(data);
+				return commentMutation.mutateAsync(data);
 			},
 			remove (data) {
-				removeMutation.mutate(data);
+				return removeMutation.mutateAsync(data);
 			},
 			resetComments (data) {
-				resetCommentsMutation.mutate(data);
+				return resetCommentsMutation.mutateAsync(data);
 			}
 		}
 	];
@@ -165,14 +184,13 @@ export const usePostList = () => {
 	const queryClient = useQueryClient();
 	const errorHandler = useErrorHandler();
 
-	const posts = useQuery({
+	const { data: posts, isError, error } = useQuery({
 
 		queryKey: ["posts"],
 		queryFn: postService.getAll,
 		refetchOnWindowFocus: false,
-		throwOnError: true
-
-	}).data;
+		retry: false
+	});
 
 	const createMutation = useMutation({
 
@@ -191,6 +209,14 @@ export const usePostList = () => {
 		onError: e => errorHandler(e.response)
 	});
 
+	useEffect(() => {
+
+		if (createMutation.isError) {
+
+			errorHandler(createMutation.error.response);
+		}
+	}, [createMutation.isError]);
+
 	return [
 		posts,
 		{
@@ -203,12 +229,13 @@ export const usePostList = () => {
 
 export const useUsers = id => {
 
-	const users = useQuery({
+	const { data: users, isError, error } = useQuery({
 		
 		queryKey: ["users"],
 		queryFn: userService.getAll,
-		refetchOnWindowFocus: false
-	}).data;
+		refetchOnWindowFocus: false,
+		retry: false
+	});
 
 	const user = users ?.find(item => item.id === id);
 
@@ -216,9 +243,16 @@ export const useUsers = id => {
 
 	useEffect(() => {
 
+		if (isError) {
+
+			errorHandler(error.response);
+		}
+	}, [isError]);
+
+	useEffect(() => {
+
 		if (id && users && !user)
 			errorHandler(204);
-
 	});
 
 	return id ? user : users;
@@ -247,14 +281,12 @@ export const useErrorHandler = () => {
 			if (e.data.error.includes("invalid token")) {
 
 				notify.confirm.error("Invalid user token! Log in again please");
-				//dispatch(logoutUser());
 				return;
 			}
 
 			if (e.data.error.includes("token has expired")) {
 
 				notify.confirm.error("Your login session passed over, please log in again");
-				//dispatch(logoutUser());
 				return;
 			}
 
@@ -282,41 +314,42 @@ export const useSession = () => {
 				if (sessionState.data.status !== "stored")
 					return _session;
 
-				console.log("QUERY > refetching");
-				//queryClient.setQueryData(["session"], { data: _session.data, status: "refetching" });
+				const data = await sessionService.check(stored.token);
 
-				try {
-					const data = await sessionService.check(stored.token);
-
-					console.log("QUERY > saving");
-					return { data, status: "stored" };
-				}
-				catch (e) {
-
-					console.log("QUERY > draining");
-					errorHandler(e.response);
-					window.localStorage.removeItem("session");
-					return { data: null, status: "empty" };
-				}
+				return { data, status: "stored" };
 			},
 			initialData: { data: stored, status: stored ?.token ? "stored" : "empty" },
 			retry: false,
 			staleTime: 2000
 		});
 
+	useEffect(() => {
+
+		if (sessionState.isError) {
+
+			const e = sessionState.error.response;
+
+			errorHandler(e);
+
+			if (e.status === 401) {
+
+				window.localStorage.removeItem("session");
+				queryClient.setQueryData(["session"], { data: null, status: "empty" });
+			}
+		}
+	}, [sessionState.isError]);
+
 	const loginMutation = useMutation({
 
 		mutationFn: sessionService.login,
 		onMutate: () => {
 
-			console.log("MUTATE > fetching");
 			const { data } = queryClient.getQueryData(["session"]);
 
 			queryClient.setQueryData(["session"], { data, status: "fetching" });
 		},
 		onSuccess: session => {
 
-			console.log("MUTATE > saving");
 			queryClient.setQueryData(["session"], { data: session, status: "stored" });
 			window.localStorage.setItem("session", JSON.stringify( session ));
 
@@ -324,14 +357,21 @@ export const useSession = () => {
 		},
 		onError: e => {
 
-			console.log("MUTATE > draining");
 			const { data } = queryClient.getQueryData(["session"]);
 
 			queryClient.setQueryData(["session"], { data, status: data ? "stored" : "empty" });
-
-			errorHandler(e.response);
 		}
 	});
+
+	useEffect(() => {
+
+		if (loginMutation.isError) {
+
+			const e = loginMutation.error.response;
+
+			errorHandler(e);
+		}
+	}, [loginMutation.isError]);
 
 	return [
 		sessionState.data,
