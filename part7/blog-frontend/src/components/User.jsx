@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 const User = ({ user }) => {
 
 	return (
-		<Card size="md">
+		<Card size="md" data-testid=".userlist-user">
 			<Stack direction="row" spacing={2} sx={{ alignItems: "center", flexWrap: "nowrap" }}>
 				<Avatar size="lg" alt={user.username} src={`/public/avatars/${user.username}.png`} />
 				<Box sx={{ flexGrow: 1, flexBasis: 0, minWidth: 0 }}>

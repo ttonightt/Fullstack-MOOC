@@ -4,7 +4,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as postService from "../services/posts";
 import * as userService from "../services/users";
 import * as sessionService from "../services/login";
-import { useState } from "react";
 
 export const useNotify = () => {
 
@@ -70,8 +69,7 @@ export const usePost = postId => {
 			const _posts = queryClient.getQueryData(["posts"]);
 
 			queryClient.setQueryData( ["posts"], _posts.map(item => item.id === postId ? post_ : item) );
-		},
-		onError: e => errorHandler(e.response)
+		}
 	});
 
 	const dislikeMutation = useMutation({
@@ -85,8 +83,7 @@ export const usePost = postId => {
 			const _posts = queryClient.getQueryData(["posts"]);
 
 			queryClient.setQueryData( ["posts"], _posts.map(item => item.id === postId ? post_ : item) );
-		},
-		onError: e => errorHandler(e.response)
+		}
 	});
 
 	const commentMutation = useMutation({
@@ -100,8 +97,7 @@ export const usePost = postId => {
 			const _posts = queryClient.getQueryData(["posts"]);
 
 			queryClient.setQueryData( ["posts"], _posts.map(item => item.id === postId ? post_ : item) );
-		},
-		onError: e => errorHandler(e.response)
+		}
 	});
 
 	const removeMutation = useMutation({
@@ -117,8 +113,7 @@ export const usePost = postId => {
 			queryClient.setQueryData( ["posts"], _posts.filter(item => item.id !== postId) );
 
 			notify.log("Post was successfully deleted!");
-		},
-		onError: e => errorHandler(e.response)
+		}
 	});
 
 	const resetCommentsMutation = useMutation({
@@ -134,8 +129,7 @@ export const usePost = postId => {
 			queryClient.setQueryData( ["posts"], _posts.map(item => item.id === postId ? post_ : item) );
 
 			notify.log("Comments were successfully reseted!");
-		},
-		onError: e => errorHandler(e.response)
+		}
 	});
 
 	useEffect(() => {
@@ -150,11 +144,11 @@ export const usePost = postId => {
 
 		if (resetCommentsMutation.isError) errorHandler(resetCommentsMutation.error.response);
 	}, [
-		likeMutation.isError,
-		dislikeMutation.isError,
-		commentMutation.isError,
-		removeMutation.isError,
-		resetCommentsMutation.isError
+		likeMutation.error,
+		dislikeMutation.error,
+		commentMutation.error,
+		removeMutation.error,
+		resetCommentsMutation.error
 	]);
 
 	return [
@@ -183,6 +177,7 @@ export const usePostList = () => {
 
 	const queryClient = useQueryClient();
 	const errorHandler = useErrorHandler();
+	const notify = useNotify();
 
 	const { data: posts, isError, error } = useQuery({
 
@@ -191,6 +186,14 @@ export const usePostList = () => {
 		refetchOnWindowFocus: false,
 		retry: false
 	});
+
+	useEffect(() => {
+
+		if (isError) {
+
+			errorHandler(error.response);
+		}
+	}, [error]);
 
 	const createMutation = useMutation({
 
@@ -205,8 +208,7 @@ export const usePostList = () => {
 			queryClient.setQueryData( ["posts"], _posts.concat(post) );
 
 			notify.log("Post was added");
-		},
-		onError: e => errorHandler(e.response)
+		}
 	});
 
 	useEffect(() => {
@@ -215,13 +217,13 @@ export const usePostList = () => {
 
 			errorHandler(createMutation.error.response);
 		}
-	}, [createMutation.isError]);
+	}, [createMutation.error]);
 
 	return [
 		posts,
 		{
 			create (data) {
-				createMutation.mutate(data);
+				return createMutation.mutateAsync(data);
 			}
 		}
 	];
@@ -247,7 +249,7 @@ export const useUsers = id => {
 
 			errorHandler(error.response);
 		}
-	}, [isError]);
+	}, [error]);
 
 	useEffect(() => {
 
@@ -276,7 +278,7 @@ export const useErrorHandler = () => {
 
 		if (e.status === 401) {
 
-			console.log(e);
+			console.error(e);
 
 			if (e.data.error.includes("invalid token")) {
 
@@ -292,6 +294,17 @@ export const useErrorHandler = () => {
 
 			notify.error("Wrong credentials!");
 			return;
+		}
+
+		if (e.status === 404) {
+
+			console.error(e);
+
+			if (e.data.error.includes("invalid token")) {
+
+				notify.confirm.error("Invalid user token! Log in again please");
+				return;
+			}
 		}
 	};
 };
@@ -331,13 +344,13 @@ export const useSession = () => {
 
 			errorHandler(e);
 
-			if (e.status === 401) {
+			if (e.status === 401 || e.status === 401) {
 
 				window.localStorage.removeItem("session");
 				queryClient.setQueryData(["session"], { data: null, status: "empty" });
 			}
 		}
-	}, [sessionState.isError]);
+	}, [sessionState.error]);
 
 	const loginMutation = useMutation({
 
@@ -371,14 +384,14 @@ export const useSession = () => {
 
 			errorHandler(e);
 		}
-	}, [loginMutation.isError]);
+	}, [loginMutation.error]);
 
 	return [
 		sessionState.data,
 		{
-			async login (username, password) {
+			login (username, password) {
 
-				await loginMutation.mutateAsync({ username, password });
+				return loginMutation.mutateAsync({ username, password });
 			},
 			logout () {
 

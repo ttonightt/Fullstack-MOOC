@@ -24,7 +24,7 @@ const NewPostSection = () => {
 
 		if (session.status !== "stored") return;
 
-		create({ post: { title, author, content }, token: session.data.token });
+		create({ post: { title, author, content }, token: session.data.token }).catch(e => e.response.status === 401 && logout());
 
 		setTitle("");
 		setAuthor(session.status === "stored" ? session.data.name : "");

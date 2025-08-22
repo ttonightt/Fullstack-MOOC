@@ -36,9 +36,12 @@ const NotificationProvider = ({ children }) => {
 				configurable: false,
 				enumerable: false
 			});
-		}
 
-		setNotifications(_notifications => _notifications.concat(notification));
+			setNotifications(_notifications => _notifications.concat(notification));
+		} else {
+
+			setNotifications(_notifications => _notifications.some(item => item.message === message) ? _notifications : _notifications.concat(notification));
+		}
 	};
 
 	const closeNotification = notification => {
