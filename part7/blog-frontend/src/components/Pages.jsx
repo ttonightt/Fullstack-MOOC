@@ -15,7 +15,7 @@ import { useSession } from "../hooks";
 
 export const Root = () => {
 
-	const session = useSession();
+	const [session] = useSession();
 
 	const navigate = useNavigate();
 
