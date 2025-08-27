@@ -55,8 +55,8 @@ const ContextMenu = ({ id }) => {
 				<MoreHorizRoundedIcon />
 			</MenuButton>
 			<Menu data-testid="post-menu-opts">
-				<MenuItem disabled={!interactive} onClick={handleResetComments}>Reset Comments</MenuItem>
-				<MenuItem disabled={!interactive} onClick={handleDelete}>Delete Post</MenuItem>
+				<MenuItem data-testid="post-menu-reset" disabled={!interactive} onClick={handleResetComments}>Reset Comments</MenuItem>
+				<MenuItem data-testid="post-menu-delete" disabled={!interactive} onClick={handleDelete}>Delete Post</MenuItem>
 			</Menu>
 		</Dropdown>
 	</>);

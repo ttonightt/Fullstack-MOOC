@@ -18,10 +18,10 @@ const UserListSection = () => {
 		);
 
 	return (
-		<Box sx={{ display: "grid", gridTemplateColumns: "33% 33% 33%", gap: "1rem" }}>
+		<Box sx={{ display: "grid", gridTemplateColumns: "33% 33% 33%", gap: "1rem" }} data-testid="userlist-root">
 			{
 				users.map(user => 
-					<Box key={user.id}>
+					<Box key={user.id} data-testid=".userlist-user">
 						<User user={user} />
 					</Box>
 				)
