@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const path = require("path");
 
 const loginRouter = require("./controllers/loginRouter");
 const postRouter = require("./controllers/postRouter");
@@ -44,7 +45,8 @@ const connectToDB = async () => {
 
 connectToDB();
 
-app.use(express.static("dist"));
+app.use("/", express.static("dist"));
+
 app.use("/public", express.static("public"));
 app.use(express.json());
 
@@ -56,6 +58,11 @@ if (config.NODE_ENV === "test")
 app.use("/api/login", loginRouter);
 app.use("/api/posts", postRouter);
 app.use("/api/users", userRouter);
+
+app.get("/*router", (req, res) => {
+
+	res.sendFile(path.join(__dirname, "dist", "index.html"));
+});
 
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);
