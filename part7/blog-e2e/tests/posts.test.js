@@ -50,6 +50,28 @@ test("Post can be liked by authorized user", async ({ page }) => {
 	}
 });
 
+test("Post can be created", async ({ page }) => {
+
+	await page.getByTestId("newpost-title").getByRole("textbox").fill("Post 4");
+	await page.getByTestId("newpost-content").getByRole("textbox").fill("Content 4");
+	
+	const authorLoc = page.getByTestId("newpost-author").getByRole("textbox");
+
+	await expect(authorLoc).toHaveValue("Safranek");
+	await authorLoc.fill("Author 4");
+
+	await page.getByRole("button", { name: "Share" }).click();
+
+	const postlistLoc = page.getByTestId("postlist-root");
+
+	await expect(postlistLoc).toHaveText(/Post 4/);
+	await expect(postlistLoc).toHaveText(/Author 4/);
+
+	const postLocs = await postlistLoc.getByTestId(".postlist-post").all();
+
+	expect(postLocs).toHaveLength(initPosts.length + 1);
+});
+
 test("Post can be opened", async ({ page }) => {
 
 	await page
@@ -76,7 +98,7 @@ test("Post can be commented by authorized user", async ({ page }) => {
 	await expect(commentLoc).toBeEnabled();
 	await commentLoc.click();
 
-	const comments = await page.getByTestId("commentlist-root").locator("div").all();
+	const comments = await page.getByTestId("commentlist-root").locator("p").all();
 
 	expect(comments).toHaveLength(1);
 	await expect(comments[0]).toHaveText("Comment 1");
