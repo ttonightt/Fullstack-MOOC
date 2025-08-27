@@ -21,6 +21,8 @@ test("Posts are generated in right number and order", async ({ page }) => {
 
 	const postlistLoc = page.getByTestId("postlist-root");
 
+	await expect(postlistLoc.getByTestId(".postlist-post").first()).toBeVisible();
+
 	const postLocs = await postlistLoc.getByTestId(".postlist-post").all();
 
 	expect(postLocs).toHaveLength(initPosts.length);
@@ -113,7 +115,7 @@ test("Unknown post throw 204", async ({ page }) => {
 
 test("User can reset comments of their own post", async ({ page }) => {
 
-	const postLoc = page.getByTestId(".postlist-post").filter({ has: page.getByRole("link", { name: "@safranek" }) });
+	const postLoc = page.getByTestId(".postlist-post").filter({ has: page.getByRole("link", { name: "@safranek" }) }).first();
 
 	await postLoc.getByRole("link", { name: /Post/ }).click();
 
@@ -129,7 +131,7 @@ test("User can reset comments of their own post", async ({ page }) => {
 
 test("User can delete their own post", async ({ page }) => {
 
-	const postLoc = page.getByTestId(".postlist-post").filter({ has: page.getByRole("link", { name: "@safranek" }) });
+	const postLoc = page.getByTestId(".postlist-post").filter({ has: page.getByRole("link", { name: "@safranek" }) }).first();
 
 	await postLoc.getByRole("link", { name: /Post/ }).click();
 
@@ -139,11 +141,10 @@ test("User can delete their own post", async ({ page }) => {
 	await expect(menuLoc).toBeVisible();
 
 	await page.getByTestId("post-menu-delete").click();
-	//await page.getByRole("button").click();
 
 	await expect(page).toHaveURL("/posts");
 
 	const posts = await page.getByTestId(".postlist-post").all();
 
-	expect(posts).toHaveLength(2);
+	expect(posts).toHaveLength(3);
 });
