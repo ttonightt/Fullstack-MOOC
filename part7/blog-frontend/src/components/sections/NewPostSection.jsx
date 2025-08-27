@@ -65,7 +65,7 @@ const NewPostSection = () => {
 								setTitle(e.target.value);
 								setExpanded(true);
 							}}
-							data-testId="newpost-title"
+							data-testid="newpost-title"
 						/>
 						{
 							edited
@@ -88,7 +88,7 @@ const NewPostSection = () => {
 							<Typography level="body-md" variant="plain" width="fit-content" lineHeight="2em">by</Typography>
 							<Input
 								placeholder="Author"
-								data-testId="newpost-author"
+								data-testid="newpost-author"
 								variant="soft"
 								sx={{ flexGrow: 1, boxShadow: "none" }}
 								value={author}
@@ -100,7 +100,7 @@ const NewPostSection = () => {
 							minRows={3}
 							variant="soft"
 							placeholder="Your story here..."
-							data-testId="newpost-content"
+							data-testid="newpost-content"
 							value={content}
 							onChange={e => setContent(e.target.value)}
 						/>
